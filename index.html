@@ -1260,7 +1260,10 @@
         <div class="card">
           <div class="card-header">
             <div class="card-title">🏷️ 品牌基础信息</div>
-            <button class="btn btn-outline btn-sm" onclick="saveKB()">保存</button>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-outline btn-sm" onclick="addBaseInfo()">＋ 添加基础信息</button>
+              <button class="btn btn-outline btn-sm" onclick="saveKB()">保存</button>
+            </div>
           </div>
           <div class="card-body">
             <div class="form-group">
@@ -1279,6 +1282,8 @@
               <label class="form-label">覆盖地区</label>
               <input type="text" class="form-control" id="kb-region" value="广东（深圳中转仓，快速响应大湾区）">
             </div>
+            <!-- 自定义基础信息容器 -->
+            <div id="base-info-list"></div>
           </div>
         </div>
 
@@ -1884,6 +1889,15 @@ async function generateContent() {
   const brandCust   = kbBase.customers || document.getElementById('kb-customers').value || '';
   const brandRegion = kbBase.region    || document.getElementById('kb-region').value    || '';
   const uspLines = kbUsp.map(u => `- ${u.label}：${u.value}`).join('\n');
+  
+  // 自定义基础信息
+  let customInfoLines = '';
+  if (kbBase.custom && Array.isArray(kbBase.custom) && kbBase.custom.length > 0) {
+    customInfoLines = kbBase.custom
+      .filter(item => item.label && item.value)
+      .map(item => `- ${item.label}：${item.value}`)
+      .join('\n');
+  }
 
   const systemPrompt = `你是一个在广东做了11年水产供应链的老板，微信名叫"炳哥"。
 你不是写手，不是内容创作者，你就是那个每天凌晨去鱼塘看货、跟餐厅老板聊食材、研究怎么把鱼养得更好吃的人。
@@ -1893,6 +1907,7 @@ async function generateContent() {
 品牌定位：${brandSlogan}
 服务客户：${brandCust}
 覆盖区域：${brandRegion}
+${customInfoLines ? `其他信息：\n${customInfoLines}` : ''}
 核心卖点：
 ${uspLines}
 
@@ -2590,6 +2605,13 @@ function loadKB() {
     document.getElementById('kb-slogan').value    = base.slogan    !== undefined ? base.slogan    : document.getElementById('kb-slogan').value;
     document.getElementById('kb-customers').value = base.customers !== undefined ? base.customers : document.getElementById('kb-customers').value;
     document.getElementById('kb-region').value    = base.region    !== undefined ? base.region    : document.getElementById('kb-region').value;
+    
+    // 自定义基础信息
+    if (base.custom && Array.isArray(base.custom)) {
+      renderBaseInfo(base.custom);
+    } else {
+      renderBaseInfo([]);
+    }
   }
   // 卖点
   const uspData = JSON.parse(localStorage.getItem('geo_kb_usp') || 'null');
@@ -2650,12 +2672,14 @@ function removeUsp(btn) {
 }
 
 function saveKB() {
-  // 保存基础信息
+  // 保存基础信息（包括自定义字段）
   const base = {
     brand:     document.getElementById('kb-brand').value.trim(),
     slogan:    document.getElementById('kb-slogan').value.trim(),
     customers: document.getElementById('kb-customers').value.trim(),
     region:    document.getElementById('kb-region').value.trim(),
+    // 自定义基础信息
+    custom: getBaseInfoFromDOM(),
   };
   localStorage.setItem('geo_kb_base', JSON.stringify(base));
   // 保存卖点（如果 DOM 里卖点为空说明还没渲染，保留旧数据）
@@ -2668,6 +2692,68 @@ function saveKB() {
   autoSyncKB(base, usp);
   
   showToast(`✅ 已保存：${base.brand || '品牌信息'} · ${usp.length} 个卖点`);
+}
+
+// 从DOM获取自定义基础信息
+function getBaseInfoFromDOM() {
+  const items = document.querySelectorAll('#base-info-list .base-info-item');
+  const result = [];
+  items.forEach(item => {
+    const label = item.querySelector('.base-info-label').value.trim();
+    const value = item.querySelector('.base-info-value').value.trim();
+    if (label || value) {
+      result.push({ label, value });
+    }
+  });
+  return result;
+}
+
+// 渲染自定义基础信息
+function renderBaseInfo(list) {
+  const container = document.getElementById('base-info-list');
+  if (!container) return;
+  
+  if (!list || list.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+  
+  container.innerHTML = list.map((item, i) => `
+    <div class="form-group base-info-item" style="display:flex;gap:8px;align-items:flex-start">
+      <div style="flex:1">
+        <input type="text" class="form-control base-info-label" placeholder="信息名称" value="${item.label || ''}" style="margin-bottom:8px">
+        <input type="text" class="form-control base-info-value" placeholder="信息内容" value="${item.value || ''}">
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="removeBaseInfo(${i})" style="flex-shrink:0;min-width:60px;height:64px;margin-top:0">删除</button>
+    </div>
+  `).join('');
+}
+
+// 添加自定义基础信息
+function addBaseInfo() {
+  const container = document.getElementById('base-info-list');
+  const newItem = document.createElement('div');
+  newItem.className = 'form-group base-info-item';
+  newItem.style.cssText = 'display:flex;gap:8px;align-items:flex-start';
+  newItem.innerHTML = `
+    <div style="flex:1">
+      <input type="text" class="form-control base-info-label" placeholder="信息名称" style="margin-bottom:8px">
+      <input type="text" class="form-control base-info-value" placeholder="信息内容">
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="this.parentElement.remove()" style="flex-shrink:0;min-width:60px;height:64px;margin-top:0">删除</button>
+  `;
+  container.appendChild(newItem);
+  
+  // 聚焦到第一个输入框
+  newItem.querySelector('.base-info-label').focus();
+}
+
+// 删除自定义基础信息
+function removeBaseInfo(index) {
+  const items = document.querySelectorAll('#base-info-list .base-info-item');
+  if (items[index]) {
+    items[index].remove();
+  }
 }
 
 // ==================== 关键词管理 ====================
@@ -3280,6 +3366,15 @@ async function callSingleAPI(topic, contentType, brandLevel, highlights, platfor
   const brandCust = kbBase.customers || '鱼生店、品质餐厅、零售渠道';
   const brandRegion = kbBase.region || '广东全省（深圳/广州/东莞/惠州）';
   const uspLines = kbUsp.map(u => `- ${u.label}：${u.value}`).join('\n');
+  
+  // 自定义基础信息
+  let customInfoLines = '';
+  if (kbBase.custom && Array.isArray(kbBase.custom) && kbBase.custom.length > 0) {
+    customInfoLines = kbBase.custom
+      .filter(item => item.label && item.value)
+      .map(item => `- ${item.label}：${item.value}`)
+      .join('\n');
+  }
 
   const systemPrompt = `你是一个在广东做了11年水产供应链的老板，微信名叫"炳哥"。
 你不是写手，不是内容创作者，你就是那个每天凌晨去鱼塘看货、跟餐厅老板聊食材、研究怎么把鱼养得更好吃的人。
@@ -3289,6 +3384,7 @@ async function callSingleAPI(topic, contentType, brandLevel, highlights, platfor
 品牌定位：${brandSlogan}
 服务客户：${brandCust}
 覆盖区域：${brandRegion}
+${customInfoLines ? `其他信息：\n${customInfoLines}` : ''}
 核心卖点：
 ${uspLines}
 
