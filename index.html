@@ -941,6 +941,9 @@
     <div class="nav-item" onclick="switchPage('settings', this)">
       <span class="icon">⚙️</span> API 设置
     </div>
+    <div class="nav-item" onclick="switchPage('settings', this); setTimeout(()=>document.getElementById('sync-card').scrollIntoView({behavior:'smooth'}),300)">
+      <span class="icon">🔄</span> 数据同步
+    </div>
   </nav>
 
   <div class="sidebar-footer">
@@ -1559,6 +1562,35 @@
               <div style="font-size:28px;font-weight:700" id="api-cost">¥0.00</div>
               <div style="font-size:13px;color:var(--text-muted);margin-top:4px">预估消耗费用</div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 数据同步卡片 -->
+      <div class="card" id="sync-card">
+        <div class="card-header">
+          <div class="card-title">🔄 数据同步（多设备备份）</div>
+        </div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.7">
+            将本机所有数据（关键词、知识库、内容库）导出为 JSON 文件，传到其他设备后导入，即可实现两台电脑数据同步。
+          </p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="exportAllData()" style="flex:1;min-width:140px">
+              📤 导出全部数据
+            </button>
+            <label class="btn btn-outline" style="flex:1;min-width:140px;cursor:pointer;text-align:center">
+              📥 导入数据（覆盖）
+              <input type="file" accept=".json" style="display:none" onchange="importAllData(event)">
+            </label>
+          </div>
+          <div id="sync-status" style="margin-top:12px;font-size:13px;color:var(--success);display:none"></div>
+          <div style="margin-top:14px;padding:12px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--text-muted);line-height:1.8">
+            <strong>使用步骤：</strong><br>
+            1. 在当前电脑点「导出全部数据」，下载 <code>wanyufeng-geo-backup.json</code><br>
+            2. 把文件通过微信/U盘传到另一台电脑<br>
+            3. 在另一台电脑打开本系统，点「导入数据」选择该文件<br>
+            ⚠️ 导入会覆盖目标设备的现有数据，请谨慎操作
           </div>
         </div>
       </div>
@@ -2822,6 +2854,73 @@ function markStep(num, status) {
     el.className = 'step ' + status;
     if (status === 'done') el.querySelector('.step-circle').textContent = '✓';
   }
+}
+
+// ==================== 数据同步（导出 / 导入）====================
+const SYNC_KEYS = [
+  'geo_keywords',
+  'geo_kb_base',
+  'geo_kb_usp',
+  'geo_contents',
+  'geo_publish_records',
+  'geo_api_calls',
+  'geo_api_cost',
+  // 不导出 api_key，保护安全
+];
+
+function exportAllData() {
+  const data = { _version: 1, _exportTime: new Date().toISOString(), _brand: '万渔丰 GEO' };
+  SYNC_KEYS.forEach(k => {
+    const v = localStorage.getItem(k);
+    if (v !== null) data[k] = JSON.parse(v);
+  });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const date = new Date().toISOString().slice(0, 10);
+  a.download = `wanyufeng-geo-backup-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showSyncStatus(`✅ 导出成功！文件：wanyufeng-geo-backup-${date}.json`);
+}
+
+function importAllData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data._version || data._brand !== '万渔丰 GEO') {
+        showSyncStatus('❌ 文件格式不正确，请选择正确的备份文件', true);
+        return;
+      }
+      let count = 0;
+      SYNC_KEYS.forEach(k => {
+        if (data[k] !== undefined) {
+          localStorage.setItem(k, JSON.stringify(data[k]));
+          count++;
+        }
+      });
+      showSyncStatus(`✅ 导入成功！已恢复 ${count} 项数据，页面将在 2 秒后刷新…`);
+      setTimeout(() => location.reload(), 2000);
+    } catch(err) {
+      showSyncStatus('❌ 文件解析失败：' + err.message, true);
+    }
+  };
+  reader.readAsText(file);
+  // 清空 input，允许重复选同一文件
+  event.target.value = '';
+}
+
+function showSyncStatus(msg, isError = false) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = isError ? 'var(--danger)' : 'var(--success)';
+  el.style.display = 'block';
+  if (!isError) setTimeout(() => { el.style.display = 'none'; }, 5000);
 }
 
 // ==================== Toast 提示 ====================
