@@ -1171,7 +1171,8 @@
             <div class="card-header">
               <div class="card-title">📄 生成结果</div>
               <div style="display:flex;gap:8px" id="result-actions" style="display:none">
-                <button class="btn btn-outline btn-sm" onclick="copyContent()">📋 复制</button>
+                <button class="btn btn-outline btn-sm" onclick="copyContent('md')" title="适合知乎，保留 Markdown 格式">📋 复制(知乎)</button>
+                <button class="btn btn-outline btn-sm" onclick="copyContent('plain')" title="适合微信/抖音/头条等，自动去除 * # 符号">📄 复制纯文本</button>
                 <button class="btn btn-success btn-sm" onclick="saveContent()">💾 保存到库</button>
               </div>
             </div>
@@ -1661,7 +1662,8 @@
       <div id="vm-publish-status" style="font-size:12px;color:var(--text-muted)"></div>
       <div style="display:flex;gap:10px">
         <button class="btn btn-outline" onclick="closeViewModal()">关闭</button>
-        <button class="btn btn-outline" id="vm-copy-btn">📋 复制全文</button>
+        <button class="btn btn-outline" id="vm-copy-btn">📋 复制(知乎)</button>
+        <button class="btn btn-outline" id="vm-copy-plain-btn">📄 复制纯文本</button>
         <button class="btn btn-primary btn-sm" onclick="switchVmTab('publish')" style="font-size:13px">🚀 发布</button>
       </div>
     </div>
@@ -2057,9 +2059,11 @@ function switchMultiTab(el, idx) {
   renderMultiResult(idx);
 }
 
-function copyContent() {
-  const text = document.getElementById('raw-text').value;
-  navigator.clipboard.writeText(text).then(() => showToast('✅ 内容已复制'));
+function copyContent(mode) {
+  const raw = document.getElementById('raw-text').value;
+  const text = (mode === 'plain') ? markdownToPlainText(raw) : raw;
+  const label = (mode === 'plain') ? '✅ 纯文本已复制（已去除 * # 符号）' : '✅ Markdown 内容已复制（适合知乎）';
+  navigator.clipboard.writeText(text).then(() => showToast(label));
 }
 
 function saveContent() {
@@ -2211,11 +2215,11 @@ let _vmCurrentItem = null;
 
 // 各平台发布配置
 const PUBLISH_PLATFORMS = [
-  { key: 'zhihu',   name: '知乎专栏',   icon: '📖', color: '#e8f0fe', url: 'https://zhuanlan.zhihu.com/write',          tip: '粘贴内容后点「发布」' },
-  { key: 'wechat',  name: '微信公众号', icon: '💚', color: '#e6f4ea', url: 'https://mp.weixin.qq.com/cgi-bin/appmsg?t=media/appmsg_edit_v2&action=edit&type=77', tip: '已自动去除 Markdown 符号，粘贴后即为纯净文本' },
-  { key: 'toutiao', name: '今日头条',   icon: '📰', color: '#fff3e0', url: 'https://mp.toutiao.com/profile_v4/graphic/publish', tip: '粘贴内容后点「发布文章」' },
-  { key: 'website', name: '独立网站',   icon: '🌐', color: '#f3e8ff', url: '',                                             tip: '请填写您的后台发布地址' },
-  { key: 'douyin',  name: '抖音图文',   icon: '🎵', color: '#fce4ec', url: 'https://creator.douyin.com/creator-micro/content/publish?enter_from=publish_page', tip: '粘贴内容后选择「图文」发布' },
+  { key: 'zhihu',   name: '知乎专栏',   icon: '📖', color: '#e8f0fe', url: 'https://zhuanlan.zhihu.com/write',          tip: '知乎原生支持 Markdown，直接粘贴即可，格式完美呈现' },
+  { key: 'wechat',  name: '微信公众号', icon: '💚', color: '#e6f4ea', url: 'https://mp.weixin.qq.com/cgi-bin/appmsg?t=media/appmsg_edit_v2&action=edit&type=77', tip: '已自动去除 * # 等符号，粘贴后即为纯净文本' },
+  { key: 'toutiao', name: '今日头条',   icon: '📰', color: '#fff3e0', url: 'https://mp.toutiao.com/profile_v4/graphic/publish', tip: '已自动去除 * # 等符号，粘贴后即为纯净文本' },
+  { key: 'website', name: '独立网站',   icon: '🌐', color: '#f3e8ff', url: '',                                             tip: '已自动去除 * # 等符号，请填写您的后台发布地址' },
+  { key: 'douyin',  name: '抖音图文',   icon: '🎵', color: '#fce4ec', url: 'https://creator.douyin.com/creator-micro/content/publish?enter_from=publish_page', tip: '已自动去除 * # 等符号，粘贴后选择「图文」发布' },
 ];
 
 function viewLibItemPublish(id) {
@@ -2237,7 +2241,10 @@ function viewLibItem(id) {
 
   // 复制按钮
   document.getElementById('vm-copy-btn').onclick = () => {
-    navigator.clipboard.writeText(item.content || '').then(() => showToast('✅ 内容已复制'));
+    navigator.clipboard.writeText(item.content || '').then(() => showToast('✅ Markdown 已复制（适合知乎）'));
+  };
+  document.getElementById('vm-copy-plain-btn').onclick = () => {
+    navigator.clipboard.writeText(markdownToPlainText(item.content || '')).then(() => showToast('✅ 纯文本已复制（已去除 * # 符号）'));
   };
 
   // 渲染发布面板
@@ -2299,31 +2306,54 @@ function renderPublishCards(item) {
   }).join('');
 }
 
-// 将 Markdown 转为纯文本（用于不支持 md 的平台，如微信公众号）
+// 将 Markdown 转为纯文本（用于不支持 Markdown 的平台）
 function markdownToPlainText(md) {
   return md
-    .replace(/^#{1,6}\s+/gm, '')          // 去掉标题 # 符号
-    .replace(/\*\*(.+?)\*\*/g, '$1')       // **粗体** → 粗体
-    .replace(/\*(.+?)\*/g, '$1')           // *斜体* → 斜体
-    .replace(/~~(.+?)~~/g, '$1')           // ~~删除线~~
-    .replace(/`{1,3}[^`]*`{1,3}/g, (m) => m.replace(/`/g, ''))  // 代码块去反引号
-    .replace(/^\s*[-*+]\s+/gm, '• ')      // 无序列表 → 圆点
-    .replace(/^\s*\d+\.\s+/gm, (m, o, s) => m.replace(/\d+\./, (n) => n))  // 有序列表保留数字
-    .replace(/\[(.+?)\]\(.+?\)/g, '$1')   // [链接文字](url) → 链接文字
-    .replace(/!\[.*?\]\(.+?\)/g, '')       // 图片去掉
-    .replace(/^[-*_]{3,}$/gm, '\n───────────────\n')  // 分割线
-    .replace(/\n{3,}/g, '\n\n')            // 多余空行压缩
+    // 标题：# 标题 → 【标题】并前后加空行，让层级更清晰
+    .replace(/^######\s+(.+)$/gm, '\n▸ $1\n')
+    .replace(/^#####\s+(.+)$/gm, '\n▸ $1\n')
+    .replace(/^####\s+(.+)$/gm, '\n■ $1\n')
+    .replace(/^###\s+(.+)$/gm, '\n◆ $1\n')
+    .replace(/^##\s+(.+)$/gm, '\n【$1】\n')
+    .replace(/^#\s+(.+)$/gm, '\n$1\n')
+    // 粗体、斜体、删除线 → 直接保留文字
+    .replace(/\*\*\*(.+?)\*\*\*/g, '$1')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/__(.+?)__/g, '$1')
+    .replace(/_(.+?)_/g, '$1')
+    .replace(/~~(.+?)~~/g, '$1')
+    // 代码块（多行 / 单行）去反引号
+    .replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, '').trim())
+    .replace(/`(.+?)`/g, '$1')
+    // 无序列表 → 圆点
+    .replace(/^\s*[-*+]\s+/gm, '• ')
+    // 有序列表保留编号
+    .replace(/^\s*(\d+)\.\s+/gm, '$1. ')
+    // 引用块 > → 去掉符号
+    .replace(/^>\s*/gm, '')
+    // 链接 [文字](url) → 文字
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1')
+    // 图片去掉
+    .replace(/!\[.*?\]\(.+?\)/g, '')
+    // 分割线 → 轻量分割
+    .replace(/^[-*_]{3,}$/gm, '\n────────────\n')
+    // 多余空行压缩为最多 2 个换行
+    .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
 
-// 需要纯文本的平台（微信编辑器不支持 Markdown）
-const PLAIN_TEXT_PLATFORMS = new Set(['wechat']);
+// 知乎原生支持 Markdown，保留原文；其他平台全部转纯文本
+const PLAIN_TEXT_PLATFORMS = new Set(['wechat', 'toutiao', 'douyin', 'xiaohongshu', 'website']);
 
 function copyAndOpen(platformKey, url) {
   if (!_vmCurrentItem) return;
   const raw = _vmCurrentItem.content || '';
-  const text = PLAIN_TEXT_PLATFORMS.has(platformKey) ? markdownToPlainText(raw) : raw;
-  const label = PLAIN_TEXT_PLATFORMS.has(platformKey) ? '✅ 已转为纯文本并复制，正在跳转…' : '✅ 内容已复制，正在跳转…';
+  const isPlain = PLAIN_TEXT_PLATFORMS.has(platformKey);
+  const text = isPlain ? markdownToPlainText(raw) : raw;
+  const label = isPlain
+    ? '✅ 已自动去除 * # 符号，内容已复制，正在跳转…'
+    : '✅ 知乎支持 Markdown，内容已复制，正在跳转…';
   navigator.clipboard.writeText(text).then(() => {
     showToast(label);
     if (url) {
