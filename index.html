@@ -2126,6 +2126,9 @@ function saveContent() {
   localStorage.setItem('geo_contents', JSON.stringify(state.contents));
   updateStats();
   renderLibrary();
+  
+  // 自动同步到GitHub
+  autoSyncContent(all);
   showToast(`✅ 已保存 ${all.length} 个版本到内容库`);
   markStep(2, 'done');
 }
@@ -2521,6 +2524,10 @@ function saveApiKey() {
   document.getElementById('api-status').textContent = '✅ API 已配置';
   document.getElementById('api-status').className = 'badge badge-success';
   markStep(1, 'done');
+  
+  // 自动同步到GitHub
+  autoSyncAPI(key, state.model);
+  
   showToast('✅ API 配置已保存');
   
   // 同时保存到一个更可靠的备份位置
@@ -2656,6 +2663,10 @@ function saveKB() {
   if (usp.length > 0) {
     localStorage.setItem('geo_kb_usp', JSON.stringify(usp));
   }
+  
+  // 自动同步到GitHub
+  autoSyncKB(base, usp);
+  
   showToast(`✅ 已保存：${base.brand || '品牌信息'} · ${usp.length} 个卖点`);
 }
 
@@ -2737,40 +2748,70 @@ function saveKeywords() {
   showToast('✅ 关键词已保存，正在自动同步...');
 }
 
-// 自动同步关键词到GitHub（简化版）
-function autoSyncKeywords(kws) {
-  // 存储当前关键词状态到localStorage，供WorkBuddy自动检测
-  localStorage.setItem('geo_keywords_pending', JSON.stringify(kws));
-  localStorage.setItem('geo_keywords_sync_time', new Date().toISOString());
-  localStorage.setItem('geo_keywords_sync_needed', 'true');
+// 统一自动同步管理器
+function autoSyncManager(type, data) {
+  // 生成同步标记
+  const syncData = {
+    type: type,                    // 同步类型：keywords/kb/content/api
+    data: data,                    // 同步数据
+    timestamp: new Date().toISOString(),
+    synced: false
+  };
   
-  console.log('🔄 关键词修改已标记，等待WorkBuddy自动同步...');
-  console.log('📊 统计:', {
-    buy: kws.buy.length + '个',
-    edu: kws.edu.length + '个', 
-    scene: kws.scene.length + '个',
-    total: (kws.buy.length + kws.edu.length + kws.scene.length) + '个关键词'
-  });
+  // 存储同步标记到localStorage
+  localStorage.setItem('geo_sync_pending', JSON.stringify(syncData));
+  localStorage.setItem('geo_sync_needed', 'true');
+  
+  // 根据类型显示不同的提示信息
+  let message = '';
+  switch(type) {
+    case 'keywords':
+      const kws = data;
+      message = `关键词修改已保存（${kws.buy.length + kws.edu.length + kws.scene.length}个），正在同步...`;
+      break;
+    case 'kb':
+      const base = data.base || {};
+      const usp = data.usp || [];
+      message = `知识库已保存（${base.brand || '品牌信息'} · ${usp.length}个卖点），正在同步...`;
+      break;
+    case 'content':
+      const count = Array.isArray(data) ? data.length : 1;
+      message = `内容已保存（${count}篇），正在同步...`;
+      break;
+    case 'api':
+      message = `API配置已保存，正在同步...`;
+      break;
+    default:
+      message = '修改已保存，正在同步...';
+  }
+  
+  console.log(`🔄 [${type}] 修改已标记，等待WorkBuddy自动同步...`);
+  console.log('📊 数据:', JSON.stringify(data, null, 2));
   
   // 显示同步状态提示
   setTimeout(() => {
-    showToast('⏳ 关键词修改已保存，正在同步到GitHub Pages...');
+    showToast('⏳ ' + message);
   }, 1000);
 }
 
-// 保留手动同步按钮功能（备用）
-function syncKeywordsToGitHub() {
-  // 获取当前关键词
-  const kws = {
-    buy: getTagsFromDOM('kw-buy'),
-    edu: getTagsFromDOM('kw-edu'),
-    scene: getTagsFromDOM('kw-scene'),
-  };
-  
-  // 调用自动同步
-  autoSyncKeywords(kws);
-  
-  showToast('🔄 正在同步到GitHub...');
+// 自动同步关键词到GitHub
+function autoSyncKeywords(kws) {
+  autoSyncManager('keywords', kws);
+}
+
+// 自动同步知识库
+function autoSyncKB(base, usp) {
+  autoSyncManager('kb', { base, usp });
+}
+
+// 自动同步内容
+function autoSyncContent(content) {
+  autoSyncManager('content', content);
+}
+
+// 自动同步API配置
+function autoSyncAPI(apiKey, model) {
+  autoSyncManager('api', { apiKey, model });
 }
 
 function getTagsFromDOM(containerId) {
