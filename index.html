@@ -1303,6 +1303,7 @@
             <div style="font-size:12px;color:var(--text-muted)">悬停点×删除 · 回车单个添加</div>
             <button class="btn btn-outline btn-sm" onclick="openBatchModal()">📥 批量导入</button>
             <button class="btn btn-success btn-sm" onclick="saveKeywords()">💾 保存关键词</button>
+            <button class="btn btn-primary btn-sm" onclick="syncKeywordsToGitHub()">🔄 同步到GitHub</button>
           </div>
         </div>
         <div class="card-body">
@@ -2730,7 +2731,100 @@ function saveKeywords() {
     scene: getTagsFromDOM('kw-scene'),
   };
   localStorage.setItem('geo_keywords', JSON.stringify(kws));
-  showToast('✅ 关键词已保存');
+  
+  // 自动导出关键词配置到文件供GitHub同步
+  exportKeywordsToJS(kws);
+  
+  showToast('✅ 关键词已保存，配置已更新');
+}
+
+// 自动导出关键词配置到JavaScript文件格式
+function exportKeywordsToJS(kws) {
+  // 生成JavaScript格式的关键词配置
+  const keywordsJS = `// 关键词配置 - ${new Date().toLocaleString('zh-CN')}
+// 此文件由GEO系统自动生成，请勿手动编辑
+const exportedKeywords = ${JSON.stringify(kws, null, 2)};
+
+// 如果在浏览器环境中，自动保存到localStorage
+if (typeof localStorage !== 'undefined') {
+  localStorage.setItem('geo_keywords', JSON.stringify(exportedKeywords));
+  console.log('✅ 关键词已同步到localStorage');
+}
+`;
+  
+  // 保存到文件系统（通过Blob下载）
+  const blob = new Blob([keywordsJS], { type: 'text/javascript' });
+  const url = URL.createObjectURL(blob);
+  
+  // 创建下载提示
+  const fileName = `keywords-config-${new Date().toISOString().slice(0,10)}.js`;
+  
+  // 存储当前导出内容供后续使用
+  window._exportedKeywordsJS = keywordsJS;
+  window._exportedKeywordsFileName = fileName;
+  
+  console.log('📝 关键词配置已导出，可通过"同步到GitHub"功能上传');
+  return { keywordsJS, fileName };
+}
+
+// 同步关键词到GitHub
+function syncKeywordsToGitHub() {
+  // 获取当前关键词
+  const kws = {
+    buy: getTagsFromDOM('kw-buy'),
+    edu: getTagsFromDOM('kw-edu'),
+    scene: getTagsFromDOM('kw-scene'),
+  };
+  
+  // 导出配置文件
+  const { keywordsJS, fileName } = exportKeywordsToJS(kws);
+  
+  // 创建下载链接
+  const blob = new Blob([keywordsJS], { type: 'text/javascript' });
+  const url = URL.createObjectURL(blob);
+  
+  // 创建临时下载链接并触发下载
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  // 显示使用说明
+  showToast(`📥 配置文件已下载：${fileName}`);
+  
+  // 显示详细使用说明弹窗
+  setTimeout(() => {
+    const instructions = `
+📋 **关键词同步到GitHub说明**
+
+**方法1：自动同步（推荐）**
+1. 将下载的文件发送给我
+2. 我会自动更新系统并同步到GitHub Pages
+3. 1-2分钟后刷新网页即可看到更新
+
+**方法2：手动更新**
+1. 打开终端，进入项目目录
+2. 运行命令更新关键词配置
+3. GitHub Pages会自动更新
+
+**当前关键词统计：**
+- 采购决策词：${kws.buy.length}个
+- 科普认知词：${kws.edu.length}个  
+- 场景应用词：${kws.scene.length}个
+- 总计：${kws.buy.length + kws.edu.length + kws.scene.length}个关键词
+    `;
+    
+    alert(instructions.replace(/\n/g, '\n\n').replace(/\*\*/g, ''));
+  }, 500);
+  
+  // 存储当前关键词状态供后续同步
+  localStorage.setItem('geo_keywords_pending', JSON.stringify(kws));
+  localStorage.setItem('geo_keywords_sync_time', new Date().toISOString());
+  
+  console.log('🔄 关键词已准备同步，等待处理...');
 }
 
 function getTagsFromDOM(containerId) {
