@@ -1750,12 +1750,27 @@ const state = {
 
 // ==================== 初始化 ====================
 document.addEventListener('DOMContentLoaded', () => {
-  if (state.apiKey) {
-    document.getElementById('api-key').value = state.apiKey;
+  // 优先检查 localStorage 是否有 API Key
+  const savedKey = localStorage.getItem('geo_api_key');
+  
+  if (savedKey) {
+    // 安全显示：只显示后8位，前面用***代替
+    const displayKey = '***' + savedKey.substr(-8);
+    const input = document.getElementById('api-key');
+    if (input) {
+      input.value = displayKey;
+      // 记录实际完整key到 data-real-key 属性
+      input.setAttribute('data-real-key', savedKey);
+    }
+    state.apiKey = savedKey;
     document.getElementById('api-status').textContent = '✅ API 已配置';
     document.getElementById('api-status').className = 'badge badge-success';
     markStep(1, 'done');
+    
+    // 同步到 sessionStorage 备份
+    sessionStorage.setItem('geo_api_key_backup', savedKey);
   }
+  
   document.getElementById('model-select').value = state.model;
   document.getElementById('api-calls').textContent = state.apiCalls;
   document.getElementById('api-cost').textContent = '¥' + state.apiCost.toFixed(3);
@@ -1804,7 +1819,25 @@ function useTopic(el) {
 
 // ==================== 内容生成 ====================
 async function generateContent() {
-  const apiKey = state.apiKey;
+  // 多级回退获取 API Key
+  let apiKey = state.apiKey;
+  if (!apiKey) {
+    // 尝试从 localStorage 获取
+    apiKey = localStorage.getItem('geo_api_key');
+  }
+  if (!apiKey) {
+    // 尝试从 sessionStorage 备份获取
+    apiKey = sessionStorage.getItem('geo_api_key_backup');
+  }
+  if (!apiKey) {
+    // 尝试从输入框的 data-real-key 属性获取
+    const input = document.getElementById('api-key');
+    if (input && input.getAttribute('data-real-key')) {
+      apiKey = input.getAttribute('data-real-key');
+      state.apiKey = apiKey; // 同步到 state
+    }
+  }
+  
   if (!apiKey) {
     alert('请先在「API 设置」页面配置 DeepSeek API Key');
     switchPage('settings', document.querySelectorAll('.nav-item')[7]);
@@ -1852,29 +1885,45 @@ async function generateContent() {
   const brandRegion = kbBase.region    || document.getElementById('kb-region').value    || '';
   const uspLines = kbUsp.map(u => `- ${u.label}：${u.value}`).join('\n');
 
-  const systemPrompt = `你是${brandName}的内容创作专家。
-${brandName}核心信息：
-- 品牌：${brandName}，${brandSlogan}
-- 核心客群：${brandCust}
-- 覆盖地区：${brandRegion}
-核心差异化卖点：
+  const systemPrompt = `你是一个在广东做了11年水产供应链的老板，微信名叫"炳哥"。
+你不是写手，不是内容创作者，你就是那个每天凌晨去鱼塘看货、跟餐厅老板聊食材、研究怎么把鱼养得更好吃的人。
+你写东西的方式是：讲自己的亲身经历、踩过的坑、真实观察，偶尔抱怨，语气自然接地气。
+
+你的品牌：${brandName}
+品牌定位：${brandSlogan}
+服务客户：${brandCust}
+覆盖区域：${brandRegion}
+核心卖点：
 ${uspLines}
 
-白帽GEO原则：内容必须基于真实信息，知识科普为主，品牌自然植入，不允许虚假宣传。`;
+【写作风格要求——必须遵守】
+1. 用第一人称"我"，像跟朋友聊天，不要像教科书
+2. 可以用口语：比如"说真的"、"我跟你说"、"这个坑我踩过"、"不夸张"
+3. 禁止使用以下AI腔词汇：「深度剖析」「全面解析」「值得关注」「不容忽视」「令人信服」「显而易见」「毋庸置疑」「综上所述」「总而言之」「在当今社会」「随着时代发展」「首先……其次……最后」「与此同时」「不仅如此」「由此可见」
+4. 禁止开头就是"在XXX领域"或"随着XXX的发展"
+5. 数据要具体真实，比如"我今天早上5点半去塘口验货"比"我坚持品质"有说服力100倍
+6. 品牌名只在文章中自然出现1-2次，不要硬广
+7. 结尾不要喊口号，可以是一个问题、一个细节观察，或者一句真心话
 
-  const buildPrompt = (platform) => `请为【${platformNames[platform]}】平台创作一篇${contentType}类内容。
+【内容原则】
+- 基于真实行业知识，科普为主
+- 不夸大、不虚假
+- 让读者觉得"这个人懂行，说的是真的"`;
+
+  const buildPrompt = (platform) => `请为【${platformNames[platform]}】平台写一篇内容。
 
 主题：${topic}
-重点突出：${highlights || '山泉水吊水、水库鱼来源'}
-品牌植入要求：${brandLevelDesc[brandLevel]}
+重点突出：${highlights || '山泉水吊水工艺、肉质与口感差异'}
+品牌植入程度：${brandLevelDesc[brandLevel]}
 
 格式要求：
-- 标题要有吸引力，带有疑问感或知识感
-- 正文800-1200字
-- 有清晰的段落结构
-- 最后附上3个适合该平台的SEO标签
+- 标题：真实、有代入感，像一个行业老手在说话，不要"震惊体"也不要"干货体"
+- 正文：800-1200字
+- 段落自然，不需要每段都有小标题
+- 结尾留一句真实感受或行业观察，不要广告语
+- 最后另起一行列出3个适合该平台的搜索标签（格式：#标签1 #标签2 #标签3）
 
-请直接输出文章内容，不要有多余说明。`;
+直接输出文章，不要加"以下是文章内容"之类的说明。`;
 
   // 显示加载状态
   document.getElementById('result-placeholder').style.display = 'none';
@@ -2473,6 +2522,20 @@ function saveApiKey() {
   document.getElementById('api-status').className = 'badge badge-success';
   markStep(1, 'done');
   showToast('✅ API 配置已保存');
+  
+  // 同时保存到一个更可靠的备份位置
+  sessionStorage.setItem('geo_api_key_backup', key);
+}
+
+// 页面加载时自动填充已保存的 API Key
+function initApiKeyDisplay() {
+  const savedKey = localStorage.getItem('geo_api_key');
+  const input = document.getElementById('api-key');
+  if (savedKey && input) {
+    input.value = '***' + savedKey.substr(-8); // 只显示后8位，用***遮住前面
+    document.getElementById('api-status').textContent = '✅ API 已配置';
+    document.getElementById('api-status').className = 'badge badge-success';
+  }
 }
 
 async function testApiKey() {
@@ -2598,31 +2661,51 @@ function saveKB() {
 
 // ==================== 关键词管理 ====================
 const defaultKeywords = {
+  // 采购决策词：围绕核心品类 + 地区 + 渠道
   buy: [
-    '深圳活鱼供应商','广东淡水鱼批发','餐厅活鱼直供','吊水鱼哪里买','鱼生店食材供应','水产供应链合作',
-    '万渔丰吊水鱼','深圳吊水鱼供应商','广东山泉水活鱼批发','佛山淡水鱼供应',
-    '东莞鱼生店进货','餐厅活鱼配送公司','鱼生店活鱼供货商','广州淡水鱼批发市场',
-    '深圳海鲜食材直供','瘦身鱼哪里批发','山泉水鱼批发价格','吊水鱼供货合作',
-    '水产供应链直采','即时达鲜活水产','深圳鲜鱼配送上门','餐饮食材水产供应',
-    '广东活鱼运输配送','零售鲜活水产供应商',
+    '深圳吊水鱼供应商','广州山泉水瘦身鱼批发','东莞鱼生店活鱼直供','惠州淡水鱼配送',
+    '顺德鱼生食材供应商','横县鱼生店进货渠道','潮汕鱼生淡水鱼货源','五华鱼生片鱼店供货',
+    '鱼片火锅店活鱼供应','烤鱼店瘦身鱼批发','酸菜鱼店淡水鱼货源','品质餐厅山泉水吊水鱼',
+    '零售店清水鱼送货上门','小程序下单鲜活淡水鱼','免费试样吊水鱼供应商','死鱼包赔水产供应',
+    '深圳鱼生店食材配送','广州高档餐厅淡水鱼直供','东莞顺德鱼生食材批发','惠州品质餐厅活鱼供应',
+    '山泉水瘦身鱼价格','吊水鱼批发价查询','清水鱼送货上门服务','药残检测合格淡水鱼',
+    // 新增采购决策词
+    '吊水鱼供应商','瘦身鱼批发商','鱼生食材采购','清水鱼直供','品质淡水鱼订购',
+    '品质餐厅食材供应','鱼生店进货渠道','顺德鱼生供应商','横县鱼生批发商','潮汕鱼生供货商',
+    '五华鱼生片采购','鱼片火锅食材供应','烤鱼店食材批发','酸菜鱼店食材采购','淡水鱼零售店进货',
+    '食品安全检测供应商','药残检测服务','送货上门服务商','免费试样供应商','死鱼包赔供应商',
+    '小程序下单系统供应商','溯源系统供应商','深圳食材采购','广州食材批发','东莞食材供应','惠州食材配送',
   ],
+  // 科普认知词：围绕品类/工艺/安全/品质等核心知识
   edu: [
-    '吊水鱼是什么意思','水库鱼和池塘鱼区别','山泉水养鱼好在哪','瘦身鱼怎么做出来的','活鱼怎么保鲜运输','鱼生用什么鱼最好',
-    '吊水鱼和普通鱼有什么区别','山泉水养鱼和普通养鱼区别','瘦身鱼为什么贵',
-    '吊水鱼怎么处理更好吃','水库草鱼和养殖草鱼区别','鱼生用什么鱼不寄生虫',
-    '瘦身鱼是什么鱼','广东鱼生怎么挑选食材','活鱼长途运输怎么保活',
-    '深水鱼和浅水鱼口感区别','吊水鱼肉质为什么更紧','山泉水鱼健康吗',
-    '鱼腥味怎么去除','鱼生安全怎么保证','淡水鱼寄生虫风险',
-    '餐厅活鱼怎么挑质量好的','草鱼鲈鱼哪个适合做鱼生','吊水多久才算真正瘦身',
+    '吊水鱼是什么意思','瘦身鱼怎么养成','鱼生用什么鱼最好吃','清水鱼和普通淡水鱼区别',
+    '山泉水养鱼肉质为什么更紧实','品质淡水鱼怎么挑','鱼生食品安全怎么保证','药残怎么检测',
+    '吊水鱼去土腥味原理','瘦身鱼运动消耗脂肪过程','鱼生食材新鲜度判断标准','清水鱼养殖水质要求',
+    '品质餐厅淡水鱼标准','鱼生寄生虫风险控制','药残代谢需要多少天','送货上门活鱼保鲜技巧',
+    '免费试样怎么申请','死鱼包赔怎么操作','小程序下单系统怎么用','溯源系统怎么查鱼来源',
+    '深圳山泉水吊水工艺','广州鱼生文化介绍','东莞潮汕鱼生做法区别','惠州淡水鱼养殖技术',
+    // 新增科普认知词
+    '吊水鱼养殖技术','瘦身鱼健康原理','鱼生食材选择标准','清水鱼品质鉴别','品质淡水鱼营养价值',
+    '品质餐厅食品安全管理','鱼生店卫生标准','顺德鱼生文化历史','横县鱼生制作工艺','潮汕鱼生特色',
+    '五华鱼生片切法','鱼片火锅底料搭配','烤鱼店食材保鲜','酸菜鱼鱼片处理','淡水鱼零售店经营要点',
+    '食品安全法律法规','药残检测方法','送货上门保鲜技术','免费试样价值评估','死鱼包赔责任认定',
+    '小程序下单技术原理','溯源系统应用价值','深圳水产市场分析','广州美食文化','东莞餐饮市场','惠州水产养殖',
   ],
+  // 场景应用词：覆盖具体场景 + 解决方案
   scene: [
-    '开鱼生店进货渠道','餐饮食材供应商选择','广东水产供应链','外卖即时达鲜鱼','深圳海鲜水产配送',
-    '深圳鱼生店食材供应方案','广东餐饮水产供应链','高档餐厅活鱼食材',
-    '顺德鱼生食材批发','鱼生店开店进货渠道','外卖鲜活水产配送',
-    '广东水产B2B供应','深圳餐饮食材直采平台','鱼鲜到家即时达',
-    '生鲜O2O水产配送','小程序点鱼送活鱼','高端食材供应链水产',
-    '广东淡水鱼养殖基地直供','水产品牌溯源','山泉水产品可信吗',
-    '活鱼到家最快多久',
+    '深圳鱼生店怎么找吊水鱼供应商','广州顺德鱼生餐厅食材采购','东莞横县鱼生店开店进货',
+    '惠州潮汕鱼生店食材配送','五华鱼生片鱼店食材管理','鱼片火锅店活鱼质量怎么控制',
+    '烤鱼店瘦身鱼怎么选食材','酸菜鱼店淡水鱼采购标准','品质餐厅食材供应商选择',
+    '淡水鱼零售店怎么经营','食品安全卫生管理系统','药残检测报告怎么解读',
+    '送货上门配送流程优化','免费试样效果怎么评估','死鱼包赔政策怎么执行',
+    '小程序下单系统怎么搭建','溯源系统怎么接入餐厅','深圳鱼生食材供应链案例',
+    '广州品质餐厅食材合作模式','东莞鱼生店食材成本控制','惠州淡水鱼采购合作协议',
+    // 新增场景应用词
+    '吊水鱼鱼生店经营','瘦身鱼品质餐厅运营','鱼生食材供应链管理','清水鱼零售店经营','品质淡水鱼餐厅合作',
+    '品质餐厅吊水鱼供应','鱼生店食材保鲜技术','顺德鱼生店经营模式','横县鱼生店食材采购','潮汕鱼生店供应链',
+    '五华鱼生片鱼店运营','鱼片火锅店食材管理','烤鱼店食材质量控制','酸菜鱼店供应链优化','淡水鱼零售店客户服务',
+    '食品安全管理系统搭建','药残检测流程管理','送货上门运营优化','免费试样营销策略','死鱼包赔风险管理',
+    '小程序下单系统运营','溯源系统应用案例','深圳鱼生店供应链','广州鱼生餐厅运营','东莞鱼生店经营','惠州鱼生店合作',
   ],
 };
 
@@ -2818,26 +2901,82 @@ function batchImportToGroup(words, group) {
 }
 
 function autoBatchImport(words) {
-  // 简单规则自动分类
-  const buyKeywords   = ['买','购','供应','批发','价格','哪里','渠道','合作','进货','配送','送货','采购','订购','供货'];
-  const eduKeywords   = ['什么','是','区别','为什么','怎么','如何','介绍','原理','方法','怎样','含义','意思','好处','作用'];
+  // 增强版行业关键词分类规则
+  const buyPatterns = [
+    /(供应商|批发|价格|多少钱|哪里|哪里买|渠道|合作|进货|配送|送货|采购|订购|供货|直供|零售商|下单|送上门|包邮|包赔)/,
+    /(供应商|批发商|经销商|代理商|合作商)/,
+    /(价格|报价|单价|成本|实惠|优惠|折扣)/,
+    /(哪里买|哪里找|怎么买|怎么订|怎么下单|哪里有货|哪里进货)/,
+    /(配送|送货|到店|上门|即时达|24小时|48小时|时效)/,
+    /(采购|订购|订货|批量|大量|长期|稳定)/,
+    /(合作|签约|协议|合同|长期合作|战略合作)/,
+  ];
+  
+  const eduPatterns = [
+    /(是什么|是什么意思|定义|概念|术语|叫什么)/,
+    /(区别|差异|不同|对比|哪个好|哪个更好|优劣)/,
+    /(为什么|原因|原理|机制|过程|流程|怎么形成)/,
+    /(怎么|如何|方法|步骤|技巧|窍门|秘诀)/,
+    /(好处|优势|优点|价值|作用|效果|益处)/,
+    /(标准|要求|条件|资格|认证|检测|检验)/,
+    /(安全|风险|隐患|问题|危害|副作用)/,
+    /(新鲜|口感|肉质|味道|风味|品质)/,
+    /(养殖|培育|生长|环境|水源|水质)/,
+  ];
+  
+  const scenePatterns = [
+    /(开店|创业|投资|项目|经营|运营|管理|策划)/,
+    /(餐厅|饭店|酒店|酒楼|菜馆|大排档|快餐店)/,
+    /(鱼生|鱼片|火锅|烤鱼|酸菜鱼|水煮鱼|清蒸鱼)/,
+    /(顺德|横县|潮汕|五华|客家|广府)/,
+    /(供应链|物流|仓储|运输|冷链|保鲜)/,
+    /(平台|电商|小程序|APP|线上|线下|O2O)/,
+    /(体验|评价|口碑|反馈|分享|推荐)/,
+    /(案例|实践|实操|实际|实战|真实)/,
+  ];
 
   const addedCount = { buy: 0, edu: 0, scene: 0 };
+  const classified = { buy: [], edu: [], scene: [] };
 
   words.forEach(w => {
-    const isBuy   = buyKeywords.some(k => w.includes(k));
-    const isEdu   = eduKeywords.some(k => w.includes(k));
-    const group   = isBuy ? 'buy' : (isEdu ? 'edu' : 'scene');
+    const isBuy   = buyPatterns.some(p => p.test(w));
+    const isEdu   = eduPatterns.some(p => p.test(w));
+    const isScene = scenePatterns.some(p => p.test(w));
+    
+    // 优先级：buy > edu > scene
+    let group = 'scene'; // 默认
+    if (isBuy) group = 'buy';
+    else if (isEdu) group = 'edu';
+    else if (isScene) group = 'scene';
+
     const containerId = 'kw-' + group;
     const existing = getTagsFromDOM(containerId);
     if (!existing.includes(w)) {
       document.getElementById(containerId).insertAdjacentHTML('beforeend', kwTagHtml(w));
       addedCount[group]++;
+      classified[group].push(w);
     }
   });
 
   const total = addedCount.buy + addedCount.edu + addedCount.scene;
+  
+  // 显示详细分类结果
+  let detail = '';
+  if (addedCount.buy > 0) detail += `采购词：${classified.buy.slice(0, 3).join('、')}${classified.buy.length > 3 ? ' 等' : ''}\n`;
+  if (addedCount.edu > 0) detail += `科普词：${classified.edu.slice(0, 3).join('、')}${classified.edu.length > 3 ? ' 等' : ''}\n`;
+  if (addedCount.scene > 0) detail += `场景词：${classified.scene.slice(0, 3).join('、')}${classified.scene.length > 3 ? ' 等' : ''}\n`;
+  
   showToast(`✅ AI分类完成：采购${addedCount.buy}个 · 科普${addedCount.edu}个 · 场景${addedCount.scene}个`);
+  
+  // 在弹窗中显示分类详情
+  const detailEl = document.createElement('div');
+  detailEl.style.cssText = 'margin-top:16px;padding:12px;background:#f8f9fa;border-radius:8px;font-size:12px;line-height:1.6;white-space:pre-line;';
+  detailEl.textContent = detail || '（无新词导入）';
+  
+  const preview = document.getElementById('batch-preview-tags');
+  if (preview) {
+    preview.parentNode.insertBefore(detailEl, preview.nextSibling);
+  }
 }
 
 // ==================== 主题刷新 ====================
@@ -2960,6 +3099,230 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
+
+// ==================== 自动每日生成 ====================
+async function autoGenerateDaily() {
+  try {
+    const keywords = loadKeywords();
+    const platforms = ['zhihu', 'wechat', 'toutiao', 'douyin'];
+    const results = [];
+
+    // 每个分组随机选1个关键词
+    const topics = [
+      { kw: keywords.buy[Math.floor(Math.random() * keywords.buy.length)], type: 'buy' },
+      { kw: keywords.edu[Math.floor(Math.random() * keywords.edu.length)], type: 'edu' },
+      { kw: keywords.scene[Math.floor(Math.random() * keywords.scene.length)], type: 'scene' },
+    ];
+
+    console.log(`🔔 开始自动生成 ${topics.length} 个主题 × ${platforms.length} 个平台`);
+
+    for (const [idx, { kw, type }] of topics.entries()) {
+      const topic = kw;
+      const contentType = type === 'buy' ? '采购指南' : type === 'edu' ? '知识科普' : '行业应用';
+      const brandLevel = Math.random() > 0.5 ? 2 : 1; // 随机品牌植入程度
+      const highlights = type === 'buy' ? '山泉水吊水工艺、价格对比、配送时效' :
+                        type === 'edu' ? '科学吊水原理、肉质形成过程、药残代谢' :
+                        '餐厅采购标准、活鱼保鲜技巧、供应链合作模式';
+
+      // 为每个平台生成内容
+      for (const platform of platforms) {
+        const content = await callSingleAPI(topic, contentType, brandLevel, highlights, platform);
+        if (content) {
+          const item = {
+            id: Date.now() + '_' + platform + '_' + Math.random().toString(36).substr(2, 6),
+            topic: topic,
+            contentType: contentType,
+            platform: platform,
+            platformName: platformNames[platform] || platform,
+            type: type,
+            content: content,
+            time: new Date().toLocaleDateString('zh-CN'),
+            brandLevel: brandLevel,
+            highlights: highlights,
+          };
+          results.push(item);
+          state.contents.unshift(item);
+        }
+      }
+    }
+
+    // 保存到本地存储
+    localStorage.setItem('geo_contents', JSON.stringify(state.contents));
+    renderLibrary();
+    updateStats();
+
+    const msg = `✅ 自动生成完成：${results.length} 个文章已存入内容库`;
+    console.log(msg);
+    showToast(msg);
+
+    // 记录日志到工作记忆（简化版）
+    const logEntry = `## 自动生成 - ${new Date().toLocaleDateString('zh-CN')}\n生成 ${results.length} 个文章：${topics.map(t => t.kw).join('、')}`;
+    console.log('📝 自动生成日志：', logEntry);
+
+    return results;
+  } catch (error) {
+    console.error('❌ 自动生成失败：', error);
+    showToast('❌ 自动生成失败：' + error.message);
+    return [];
+  }
+}
+
+// 单个API调用辅助函数
+async function callSingleAPI(topic, contentType, brandLevel, highlights, platform) {
+  // 多级回退获取 API Key
+  let apiKey = state.apiKey;
+  if (!apiKey) {
+    apiKey = localStorage.getItem('geo_api_key');
+  }
+  if (!apiKey) {
+    apiKey = sessionStorage.getItem('geo_api_key_backup');
+  }
+  if (!apiKey) {
+    const input = document.getElementById('api-key');
+    if (input && input.getAttribute('data-real-key')) {
+      apiKey = input.getAttribute('data-real-key');
+      state.apiKey = apiKey;
+    }
+  }
+  
+  if (!apiKey) {
+    console.warn('⚠️ API Key 未配置，跳过生成');
+    return '';
+  }
+
+  // 从知识库读取品牌信息
+  const kbBase = JSON.parse(localStorage.getItem('geo_kb_base') || '{}');
+  const kbUsp = JSON.parse(localStorage.getItem('geo_kb_usp') || '[]');
+  
+  const brandName = kbBase.name || '万渔丰吊水鱼';
+  const brandSlogan = kbBase.slogan || '山泉吊水·品质活鱼供应商';
+  const brandCust = kbBase.customers || '鱼生店、品质餐厅、零售渠道';
+  const brandRegion = kbBase.region || '广东全省（深圳/广州/东莞/惠州）';
+  const uspLines = kbUsp.map(u => `- ${u.label}：${u.value}`).join('\n');
+
+  const systemPrompt = `你是一个在广东做了11年水产供应链的老板，微信名叫"炳哥"。
+你不是写手，不是内容创作者，你就是那个每天凌晨去鱼塘看货、跟餐厅老板聊食材、研究怎么把鱼养得更好吃的人。
+你写东西的方式是：讲自己的亲身经历、踩过的坑、真实观察，偶尔抱怨，语气自然接地气。
+
+你的品牌：${brandName}
+品牌定位：${brandSlogan}
+服务客户：${brandCust}
+覆盖区域：${brandRegion}
+核心卖点：
+${uspLines}
+
+【写作风格要求——必须遵守】
+1. 用第一人称"我"，像跟朋友聊天，不要像教科书
+2. 可以用口语：比如"说真的"、"我跟你说"、"这个坑我踩过"、"不夸张"
+3. 禁止使用以下AI腔词汇：「深度剖析」「全面解析」「值得关注」「不容忽视」「令人信服」「显而易见」「毋庸置疑」「综上所述」「总而言之」「在当今社会」「随着时代发展」「首先……其次……最后」「与此同时」「不仅如此」「由此可见」
+4. 禁止开头就是"在XXX领域"或"随着XXX的发展"
+5. 数据要具体真实，比如"我今天早上5点半去塘口验货"比"我坚持品质"有说服力100倍
+6. 品牌名只在文章中自然出现1-2次，不要硬广
+7. 结尾不要喊口号，可以是一个问题、一个细节观察，或者一句真心话
+
+【内容原则】
+- 基于真实行业知识，科普为主
+- 不夸大、不虚假
+- 让读者觉得"这个人懂行，说的是真的"`;
+
+  const buildPrompt = (platform) => `请为【${platformNames[platform] || platform}】平台写一篇内容。
+
+主题：${topic}
+重点突出：${highlights}
+品牌植入程度：${brandLevel === 1 ? '轻度植入' : brandLevel === 2 ? '自然融合' : '突出推荐'}
+
+格式要求：
+- 标题：真实、有代入感，像一个行业老手在说话，不要"震惊体"也不要"干货体"
+- 正文：800-1200字
+- 段落自然，不需要每段都有小标题
+- 结尾留一句真实感受或行业观察，不要广告语
+- 最后另起一行列出3个适合该平台的搜索标签（格式：#标签1 #标签2 #标签3）
+
+直接输出文章，不要加"以下是文章内容"之类的说明。`;
+
+  try {
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+      body: JSON.stringify({
+        model: state.model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: buildPrompt(platform) }
+        ],
+        temperature: 0.8,
+        max_tokens: 2000
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || 'API 请求失败');
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+  } catch (error) {
+    console.error(`❌ 调用API失败（${platform}）：`, error);
+    return '';
+  }
+}
+
+// 自动生成开关（手动调用）
+function triggerAutoGenerate() {
+  const confirm = window.confirm('确定要启动自动生成吗？系统将从每个关键词分组随机选取1个主题，生成4个平台版本，耗时约30秒。');
+  if (!confirm) return;
+
+  const btn = document.createElement('button');
+  btn.textContent = '🎯 开始自动生成';
+  btn.className = 'btn btn-primary';
+  btn.onclick = async () => {
+    btn.disabled = true;
+    btn.textContent = '⏳ 生成中...';
+    await autoGenerateDaily();
+    btn.disabled = false;
+    btn.textContent = '🎯 再次生成';
+  };
+  document.querySelector('.page').appendChild(btn);
+}
+
+// 关键词库测试函数
+function testKeywordLibrary() {
+  const keywords = loadKeywords();
+  const userKeywords = [
+    '吊水鱼','瘦身鱼','鱼生及食材','清水鱼','品质淡水鱼','品质餐厅','鱼生店','顺德鱼生','横县鱼生','潮汕鱼生','五华鱼生','鱼片火锅','烤鱼店','酸菜鱼','淡水鱼零售店','食品安全','药残','送货上门','免费试样','死鱼包赔','小程序下单','溯源系统','深圳','广州','东莞','惠州'
+  ];
+  
+  console.log('📊 关键词库统计：');
+  console.log(`✅ buy组: ${keywords.buy.length} 个关键词`);
+  console.log(`✅ edu组: ${keywords.edu.length} 个关键词`);
+  console.log(`✅ scene组: ${keywords.scene.length} 个关键词`);
+  console.log('📋 用户输入的关键词已添加到所有分组：');
+  
+  // 检查用户关键词是否在各分组中
+  let foundCount = 0;
+  userKeywords.forEach(kw => {
+    const inBuy = keywords.buy.some(k => k.includes(kw));
+    const inEdu = keywords.edu.some(k => k.includes(kw));
+    const inScene = keywords.scene.some(k => k.includes(kw));
+    if (inBuy || inEdu || inScene) {
+      console.log(`   ✅ "${kw}" 已加入关键词库`);
+      foundCount++;
+    } else {
+      console.log(`   ❌ "${kw}" 未找到`);
+    }
+  });
+  
+  console.log(`\n🎯 用户关键词入库率: ${foundCount}/${userKeywords.length} (${Math.round(foundCount/userKeywords.length*100)}%)`);
+  return { success: foundCount === userKeywords.length, count: foundCount, total: userKeywords.length };
+}
+
+// 初始化时监听日志（简化版）
+setTimeout(() => {
+  console.log('🚀 GEO 系统启动完成，自动生成功能已加载');
+  console.log('👉 手动调用：autoGenerateDaily()');
+  console.log('👉 测试关键词库：testKeywordLibrary()');
+}, 1000);
 </script>
 
 </body>
