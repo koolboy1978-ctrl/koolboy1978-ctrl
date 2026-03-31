@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>万渔丰 · GEO 2.0 内容管理系统</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #0066ff;
+      --primary-dark: #0052cc;
+      --primary-light: #e8f0fe;
+      --success: #00a854;
+      --warning: #fa8c16;
+      --danger: #f5222d;
+      --info: #1890ff;
+      --bg: #f4f6fa;
+      --card: #ffffff;
+      --text: #1a1a2e;
+      --text-muted: #8c8fa3;
+      --border: #e8ecf4;
+      --sidebar-bg: #0f172a;
+      --sidebar-text: #94a3b8;
+      --sidebar-active: #38bdf8;
+      --sidebar-hover: rgba(56,189,248,0.08);
+      --accent: #f0a500;
+      --radius: 12px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 24px rgba(0,0,0,0.10);
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+      font-size: 14px;
+    }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      width: 220px;
+      min-width: 220px;
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 200;
+      overflow-y: auto;
+    }
+    .sidebar-logo {
+      padding: 22px 18px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .sidebar-logo .brand { font-size: 16px; font-weight: 700; color: var(--sidebar-active); letter-spacing: 0.5px; }
+    .sidebar-logo .version { font-size: 11px; color: var(--accent); background: rgba(240,165,0,0.15); padding: 2px 8px; border-radius: 10px; margin-top: 6px; display: inline-block; }
+    .sidebar-logo .sub { font-size: 11px; color: var(--sidebar-text); margin-top: 4px; opacity: 0.6; }
+    .sidebar-nav { flex: 1; padding: 10px 0; }
+    .nav-section { padding: 14px 18px 4px; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(148,163,184,0.4); font-weight: 600; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 18px; cursor: pointer;
+      transition: all 0.2s; font-size: 13px;
+      color: var(--sidebar-text);
+      border-left: 3px solid transparent;
+      user-select: none;
+    }
+    .nav-item:hover { background: var(--sidebar-hover); color: #e2e8f0; }
+    .nav-item.active { background: rgba(56,189,248,0.12); color: var(--sidebar-active); border-left-color: var(--sidebar-active); }
+    .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+    .nav-badge { margin-left: auto; background: var(--danger); color: #fff; font-size: 10px; padding: 1px 6px; border-radius: 10px; }
+    .sidebar-footer { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.07); }
+    .sidebar-footer .api-status { font-size: 11px; color: var(--sidebar-text); display: flex; align-items: center; gap: 6px; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+    .status-dot.off { background: var(--danger); }
+
+    /* ===== 主内容区 ===== */
+    .main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar {
+      background: #fff; border-bottom: 1px solid var(--border);
+      padding: 0 28px; height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .topbar-title { font-size: 16px; font-weight: 600; color: var(--text); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-date { font-size: 12px; color: var(--text-muted); }
+    .content { padding: 24px 28px; flex: 1; }
+
+    /* ===== 卡片 ===== */
+    .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .card-title { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .card-title .icon { font-size: 18px; }
+
+    /* ===== 按钮 ===== */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; text-decoration: none; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover { background: #008c45; }
+    .btn-warning { background: var(--warning); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+    .btn-lg { padding: 11px 24px; font-size: 15px; border-radius: 10px; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-icon { padding: 6px; border-radius: 6px; background: transparent; border: 1px solid var(--border); cursor: pointer; font-size: 14px; transition: all 0.2s; }
+    .btn-icon:hover { background: var(--primary-light); border-color: var(--primary); }
+
+    /* ===== 表单 ===== */
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+    .form-control {
+      width: 100%; padding: 9px 12px;
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: 13px; color: var(--text);
+      background: #fff; transition: border-color 0.2s;
+      font-family: inherit;
+    }
+    .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+    textarea.form-control { resize: vertical; min-height: 80px; }
+    .form-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    .unsaved-badge { display: inline-block; font-size: 11px; color: var(--warning); background: rgba(250,140,22,0.1); padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
+
+    /* ===== 标签/Badge ===== */
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    .badge-primary { background: var(--primary-light); color: var(--primary); }
+    .badge-success { background: #f0fdf4; color: var(--success); }
+    .badge-warning { background: #fff7e6; color: var(--warning); }
+    .badge-danger { background: #fff1f0; color: var(--danger); }
+    .badge-info { background: #e6f7ff; color: var(--info); }
+    .badge-gray { background: #f5f5f5; color: #666; }
+
+    /* ===== 平台标签 ===== */
+    .platform-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .platform-zhihu { background: #e8f4fc; color: #0084ff; }
+    .platform-wechat { background: #f0fdf4; color: #07c160; }
+    .platform-douyin { background: #fff0f6; color: #ff0050; }
+    .platform-toutiao { background: #fff7e6; color: #ff6900; }
+    .platform-xiaohongshu { background: #fff0f0; color: #fe2c55; }
+    .platform-baijia { background: #e8f0fe; color: #2932e1; }
+
+    /* ===== 网格 ===== */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+    /* ===== 统计卡片 ===== */
+    .stat-card { background: var(--card); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); }
+    .stat-label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+    .stat-value { font-size: 28px; font-weight: 700; color: var(--text); line-height: 1; }
+    .stat-value.green { color: var(--success); }
+    .stat-value.blue { color: var(--primary); }
+    .stat-value.orange { color: var(--warning); }
+    .stat-trend { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+    .stat-trend span { color: var(--success); font-weight: 600; }
+
+    /* ===== 进度条 ===== */
+    .progress { height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 3px; background: var(--primary); transition: width 0.5s; }
+
+    /* ===== 标签页 ===== */
+    .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 20px; gap: 4px; }
+    .tab { padding: 10px 18px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; border-radius: 6px 6px 0 0; }
+    .tab:hover { color: var(--primary); background: var(--primary-light); }
+    .tab.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--primary-light); }
+
+    /* ===== 列表 ===== */
+    .list-item { padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; transition: box-shadow 0.2s; background: #fff; }
+    .list-item:hover { box-shadow: var(--shadow); }
+    .list-item-content { flex: 1; min-width: 0; }
+    .list-item-title { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .list-item-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+    .list-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    /* ===== 页面隐藏/显示 ===== */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ===== 弹窗 ===== */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 16px; padding: 28px; max-width: 700px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .modal-title { font-size: 17px; font-weight: 700; }
+    .modal-close { cursor: pointer; font-size: 20px; color: var(--text-muted); padding: 4px; }
+    .modal-close:hover { color: var(--danger); }
+
+    /* ===== Prompt 方案编辑器 ===== */
+    .btn-prompt-edit { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 2px 8px; font-size: 12px; cursor: pointer; color: var(--primary); white-space: nowrap; transition: all .15s; }
+    .btn-prompt-edit:hover { background: var(--primary-light); border-color: var(--primary); }
+    .prompt-plan-item { border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; background: #fff; transition: border-color .15s; }
+    .prompt-plan-item.active { border-color: var(--primary); background: var(--primary-light); }
+    .prompt-plan-header { display: flex; align-items: center; justify-content: space-between; gap:8px; }
+    .prompt-plan-name { font-size: 14px; font-weight: 600; }
+    .prompt-plan-preview { font-size: 12px; color: var(--text-muted); margin-top: 6px; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .badge-system { background: #e8f0fe; color: #0066ff; font-size: 11px; border-radius: 4px; padding: 2px 6px; white-space: nowrap; }
+    .badge-custom { background: #fff3cd; color: #856404; font-size: 11px; border-radius: 4px; padding: 2px 6px; white-space: nowrap; }
+    .modal-footer { margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* ===== 消息提示 ===== */
+    #toast-container { position: fixed; top: 70px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--text); color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 13px; box-shadow: var(--shadow-md); opacity: 0; transform: translateX(20px); transition: all 0.3s; min-width: 200px; }
+    .toast.show { opacity: 1; transform: translateX(0); }
+    .toast.success { background: var(--success); }
+    .toast.warning { background: var(--warning); }
+    .toast.error { background: var(--danger); }
+
+    /* ===== 空状态 ===== */
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+
+    /* ===== 加载动画 ===== */
+    .loading { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== 分割线 ===== */
+    .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+    /* ===== 评分条 ===== */
+    .score-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .score-label { font-size: 12px; color: var(--text-muted); width: 80px; }
+    .score-track { flex: 1; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
+    .score-fill { height: 100%; border-radius: 4px; transition: width 0.6s; }
+    .score-num { font-size: 12px; font-weight: 600; width: 32px; text-align: right; }
+
+    /* ===== 选题卡片 ===== */
+    .topic-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; background: #fff; transition: all 0.2s; cursor: pointer; }
+    .topic-card:hover { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,102,255,0.06); }
+    .topic-card.selected { border-color: var(--primary); background: var(--primary-light); }
+    .topic-card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .topic-card-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* ===== 日历 ===== */
+    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+    .cal-cell { border: 1px solid var(--border); border-radius: 8px; padding: 8px; min-height: 80px; background: #fff; }
+    .cal-cell.today { border-color: var(--primary); background: var(--primary-light); }
+    .cal-day { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+    .cal-task { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-bottom: 2px; cursor: pointer; }
+
+    /* ===== 版本管理 ===== */
+    .version-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; background: #fff; }
+    .version-num { font-size: 13px; font-weight: 700; color: var(--primary); width: 60px; }
+    .version-info { flex: 1; }
+    .version-desc { font-size: 13px; color: var(--text); }
+    .version-date { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .version-current { color: var(--success); font-size: 11px; font-weight: 600; }
+
+    /* ===== 效果验证 ===== */
+    .test-record { border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; background: #fff; }
+    .test-keyword { font-size: 14px; font-weight: 600; }
+    .test-platforms { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .test-platform-item { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 16px; font-size: 11px; border: 1px solid var(--border); }
+    .test-platform-item.hit { border-color: var(--success); background: #f0fdf4; color: var(--success); }
+    .test-platform-item.miss { border-color: #eee; color: var(--text-muted); }
+    .hit-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
+    .miss-dot { width: 6px; height: 6px; border-radius: 50%; background: #ccc; }
+
+    /* ===== 图片槽位 ===== */
+    .img-slot { border: 2px dashed var(--border); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fafafa; }
+    .img-slot:hover { border-color: var(--primary); background: var(--primary-light); }
+    .img-slot.filled { border-style: solid; border-color: var(--success); background: #f0fdf4; }
+    .img-slot img { width: 100%; border-radius: 8px; max-height: 160px; object-fit: cover; }
+    .img-slot-label { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+
+    /* ===== 关键词标签 ===== */
+    .kw-tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: var(--primary-light); color: var(--primary); border-radius: 16px; font-size: 12px; margin: 3px; cursor: default; }
+    .kw-tag .del { cursor: pointer; color: var(--primary); opacity: 0.6; font-size: 14px; }
+    .kw-tag .del:hover { opacity: 1; color: var(--danger); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 900px) {
+      .grid-4 { grid-template-columns: repeat(2,1fr); }
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== 侧边栏 ===== -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand">万渔丰 · GEO</div>
+      <div><span class="version" id="sidebarVersion">v2.4.4</span></div>
+      <div class="sub">生成式引擎优化系统</div>
+    </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">核心功能</div>
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <span class="icon">🏠</span> 数据看板
+    </div>
+    <div class="nav-item" onclick="showPage('topics')">
+      <span class="icon">💡</span> 选题引擎
+    </div>
+    <div class="nav-item" onclick="showPage('generate')">
+      <span class="icon">✍️</span> 内容生成
+    </div>
+    <div class="nav-item" onclick="showPage('library')">
+      <span class="icon">📚</span> 内容库
+    </div>
+    <div class="nav-section">资源管理</div>
+    <div class="nav-item" onclick="showPage('assets')">
+      <span class="icon">🖼️</span> 素材库
+    </div>
+    <div class="nav-item" onclick="showPage('keywords')">
+      <span class="icon">🗝️</span> 关键词库
+    </div>
+    <div class="nav-item" onclick="showPage('schedule')">
+      <span class="icon">📅</span> 发布计划
+    </div>
+    <div class="nav-section">效果与设置</div>
+    <div class="nav-item" onclick="showPage('verify')">
+      <span class="icon">🔍</span> 效果验证
+    </div>
+    <div class="nav-item" onclick="showPage('knowledge')">
+      <span class="icon">🧠</span> 知识库
+    </div>
+    <div class="nav-item" onclick="showPage('settings')">
+      <span class="icon">⚙️</span> 系统设置
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="api-status">
+      <div class="status-dot" id="apiDot"></div>
+      <span id="apiStatusText">API 未配置</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== 主内容 ===== -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="pageTitle">数据看板</div>
+    <div class="topbar-right">
+      <div class="topbar-date" id="topbarDate"></div>
+      <button class="btn btn-outline btn-sm" onclick="exportAllData()">⬇️ 导出备份</button>
+      <button class="btn btn-primary btn-sm" onclick="document.getElementById('importInput').click()">⬆️ 导入恢复</button>
+      <button class="btn btn-sm" style="background:#fff3cd;color:#856404;border:1px solid #ffc107" onclick="if(confirm('清除浏览器缓存数据并重置系统？（不会影响代码，仅清除本地存储）')){localStorage.clear();location.reload();}">🔄 重置缓存</button>
+      <input type="file" id="importInput" accept=".json" style="display:none" onchange="importAllData(event)">
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ============================
+         页面1：数据看板
+    ============================= -->
+    <div id="page-dashboard" class="page active">
+      <div class="grid-4" style="margin-bottom:20px">
+        <div class="stat-card">
+          <div class="stat-label">📝 累计发布</div>
+          <div class="stat-value blue" id="stat-total">0</div>
+          <div class="stat-trend">篇内容</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">🎯 AI命中次数</div>
+          <div class="stat-value green" id="stat-hits">0</div>
+          <div class="stat-trend">次搜索命中</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">📦 内容库存</div>
+          <div class="stat-value orange" id="stat-stock">0</div>
+          <div class="stat-trend">篇待发布</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">✅ 今日完成</div>
+          <div class="stat-value" id="stat-today">0/6</div>
+          <div class="stat-trend">平台</div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">📅</span> 今日发布任务</div>
+            <button class="btn btn-primary btn-sm" onclick="showPage('schedule')">查看日历</button>
+          </div>
+          <div id="todayTasks">
+            <div class="empty-state" style="padding:24px">
+              <div class="icon">📋</div>
+              <p>今日暂无安排，去选题引擎生成内容</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">🔍</span> AI命中趋势</div>
+            <span class="badge badge-primary">近7天</span>
+          </div>
+          <div id="hitTrend" style="min-height:100px">
+            <canvas id="hitChart" width="100%" height="100" style="width:100%"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">📊</span> 平台发布分布</div>
+          </div>
+          <div id="platformDist">
+            <div id="platformBars"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">⚡</span> 快捷操作</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <button class="btn btn-primary" onclick="showPage('topics')">💡 生成今日选题</button>
+            <button class="btn btn-outline" onclick="showPage('generate')">✍️ 直接生成内容</button>
+            <button class="btn btn-outline" onclick="showPage('verify')">🔍 测试AI搜索效果</button>
+            <button class="btn btn-outline" onclick="showPage('library')">📚 查看内容库</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================
+         页面2：选题引擎
+    ============================= -->
+    <div id="page-topics" class="page">
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <div class="card-title"><span class="icon">💡</span> 选题引擎</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <select class="form-control" style="width:auto" id="topicAudience">
+              <option value="all">全部人群</option>
+              <option value="restaurant">餐饮老板/采购</option>
+              <option value="fishraw">鱼生店主</option>
+              <option value="retail">零售商/超市采购</option>
+              <option value="consumer">普通消费者</option>
+            </select>
+            <select class="form-control" style="width:auto" id="topicType">
+              <option value="auto">自动分配(品牌60/IP40)</option>
+              <option value="brand">全部品牌内容</option>
+              <option value="ip">全部个人IP</option>
+            </select>
+            <select class="form-control" style="width:auto" id="brandLevel" onchange="updateBrandLevelTip()">
+              <option value="light">💡 轻度植入（不提品牌/IP名）</option>
+              <option value="medium" selected>⚖️ 中度植入（自然带出1-2次）</option>
+              <option value="heavy">🔥 重度植入（品牌/IP为主角）</option>
+            </select>
+            <button class="btn btn-outline btn-sm" onclick="openTopicPromptEditor()" title="编辑选题System Prompt方案" style="display:flex;align-items:center;gap:6px">
+              <span>⚙️ Prompt方案</span>
+              <span id="activeTopicPlanName" style="font-size:11px;color:var(--primary);background:rgba(59,130,246,0.08);padding:1px 7px;border-radius:10px;font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+            </button>
+            <button class="btn btn-primary" onclick="generateTopics()" id="topicBtn">
+              ✨ 生成10个选题
+            </button>
+          </div>
+        </div>
+        <div id="brandLevelTip" style="font-size:12px;color:var(--text-muted);padding:4px 0">⚖️ 中度植入：内容有品牌/IP背景，正文自然带出1-2次，干货占80%以上。选题+内容生成同步生效。</div>
+      </div>
+
+      <!-- 热点搜索折叠面板 -->
+      <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="toggleHotspotPanel()">
+          <span style="font-size:15px;font-weight:600">🔥 今日热点参考</span>
+          <span style="font-size:11px;color:var(--text-muted)">搜索水产相关热点，勾选后注入选题生成</span>
+          <span id="hotspotToggleIcon" style="margin-left:auto;color:var(--text-muted);font-size:12px">▼</span>
+        </div>
+        <div id="hotspotPanel" style="display:none;margin-top:12px">
+          <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+            <input class="form-control" id="hotspotKeyword" style="flex:1;min-width:160px" placeholder="搜索关键词，如：吊水鱼 食品安全 活鱼运输" value="水产食品安全">
+            <button class="btn btn-primary btn-sm" id="hotspotSearchBtn" onclick="searchHotspots()">🔍 搜索热点</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+            <input class="form-control" id="manualHotspotInput" style="flex:1" placeholder="手动输入热点，如：央视曝光活鱼运输麻醉剂丁香酚+工业酒精事件">
+            <button class="btn btn-outline btn-sm" onclick="addManualHotspot()">+ 手动添加</button>
+          </div>
+          <div id="hotspotList" style="max-height:300px;overflow-y:auto">
+            <div style="color:var(--text-muted);font-size:13px;padding:8px">暂无热点，点击搜索或手动添加</div>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:6px">✅ 勾选的热点将自动注入到选题生成中</div>
+        </div>
+      </div>
+
+      <!-- 灵感输入 -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <div class="card-title" style="font-size:14px">💭 灵感备忘</div>
+          <span style="font-size:12px;color:var(--text-muted)">临时输入，生成时一并参考</span>
+        </div>
+        <textarea class="form-control" id="topicInspiration" rows="2" placeholder="在这里记录灵感素材，如：太平年钱弘俶吃的鱼脍其实就是现代鱼生，顺德/潮汕/横县/五华各派别特色不同，可以做派别对比内容…"></textarea>
+      </div>
+
+      <div id="topicsList" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div class="empty-state" style="grid-column:span 2;padding:48px">
+          <div class="icon">💡</div>
+          <p>点击「生成10个选题」开始</p>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="btn btn-success" id="useTopicBtn" disabled onclick="useSelectedTopic()">✍️ 用选中选题生成内容</button>
+        <button class="btn btn-outline" onclick="saveTopic()">⭐ 收藏选中选题</button>
+        <button class="btn btn-outline" onclick="showPage('saved-topics')">📌 查看收藏夹</button>
+      </div>
+
+      <!-- 收藏夹 -->
+      <div class="card" style="margin-top:20px">
+        <div class="card-header">
+          <div class="card-title"><span class="icon">⭐</span> 选题收藏夹</div>
+          <span class="badge badge-gray" id="savedTopicCount">0个选题</span>
+        </div>
+        <div id="savedTopicsList">
+          <div class="empty-state" style="padding:24px">
+            <p>暂无收藏选题</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================
+         页面3：内容生成
+    ============================= -->
+    <div id="page-generate" class="page">
+      <div class="grid-2" style="margin-bottom:16px;align-items:start">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">📝</span> 内容主题</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="display:flex;align-items:center;gap:8px">
+              从收藏夹选题
+              <span style="font-size:11px;color:var(--text-muted)">选择后自动填入下方，可手动修改</span>
+            </label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select class="form-control" id="savedTopicDropdown" onchange="onDropdownSelectTopic()" style="flex:1;font-size:13px">
+                <option value="">— 不使用收藏夹，手动填写 —</option>
+              </select>
+              <button class="btn btn-outline btn-sm" onclick="clearTopicDropdown()" title="清空选择，重新手动填写" style="white-space:nowrap;flex-shrink:0">✕ 清空</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">主题/标题</label>
+            <textarea class="form-control" id="genTopic" rows="2" placeholder="输入选题或直接写内容方向，例如：深圳吊水鱼供应商怎么选？——一个水产老板的真心话"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">内容类型</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px">
+                <input type="radio" name="contentType" value="brand" checked> 品牌内容（万渔丰）
+              </label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px">
+                <input type="radio" name="contentType" value="ip"> 个人IP（炳哥）
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">品牌/IP 植入程度
+              <span style="font-size:11px;color:var(--text-muted);margin-left:6px">与选题引擎联动，选题后自动同步</span>
+            </label>
+            <select class="form-control" id="genBrandLevel" onchange="updateGenBrandLevelTip()">
+              <option value="light">💡 轻度植入（不提品牌/IP名，纯干货）</option>
+              <option value="medium" selected>⚖️ 中度植入（自然带出品牌1-2次）</option>
+              <option value="heavy">🔥 重度植入（品牌/IP为核心主角）</option>
+            </select>
+            <div id="genBrandLevelTip" style="font-size:11px;color:var(--text-muted);margin-top:4px">⚖️ 正文自然提及品牌"万渔丰"或"炳哥"1-2次，干货内容占80%以上</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">目标人群</label>
+            <select class="form-control" id="genAudience">
+              <option value="restaurant">餐饮老板/厨师长/采购负责人</option>
+              <option value="fishraw">鱼生店主（顺德/潮汕/横县等）</option>
+              <option value="retail">连锁超市水产负责人/零售商</option>
+              <option value="consumer">普通消费者</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">调用素材背书</label>
+            <div id="assetCheckboxes" style="display:flex;flex-direction:column;gap:6px;font-size:13px">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+                <input type="checkbox" value="base" checked> 山泉水养殖基地
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+                <input type="checkbox" value="walmart" checked> 沃尔玛合作背书
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+                <input type="checkbox" value="pupu" checked> 朴朴超市合作
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+                <input type="checkbox" value="meituan" checked> 美团小象合作
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer" id="restaurantAssetLabel" style="display:none">
+                <input type="checkbox" value="restaurant" id="restaurantAssetCb"> 餐饮客户案例（待补充）
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">📡</span> 发布平台</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-outline btn-sm" onclick="selectAllPlatforms()">全选</button>
+              <button class="btn btn-outline btn-sm" onclick="clearPlatforms()">清空</button>
+            </div>
+          </div>
+          <div id="platformSelect" style="display:flex;flex-direction:column;gap:8px">
+            <label class="platform-check-item" data-p="zhihu">
+              <input type="checkbox" value="zhihu" checked>
+              <span class="platform-badge platform-zhihu">📘 知乎</span>
+              <span style="font-size:12px;color:var(--text-muted);flex:1">长文问答 1500字+，AI引用权重最高</span>
+              <button id="promptBtn_zhihu" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('zhihu')" title="编辑Prompt方案">✏️ 方案</button>
+            </label>
+            <label class="platform-check-item" data-p="wechat">
+              <input type="checkbox" value="wechat" checked>
+              <span class="platform-badge platform-wechat">💚 微信公众号</span>
+              <span style="font-size:12px;color:var(--text-muted);flex:1">图文爆款，元宝生态</span>
+              <button id="promptBtn_wechat" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('wechat')" title="编辑Prompt方案">✏️ 方案</button>
+            </label>
+            <label class="platform-check-item" data-p="douyin">
+              <input type="checkbox" value="douyin" checked>
+              <span class="platform-badge platform-douyin">🎵 抖音图文</span>
+              <span style="font-size:12px;color:var(--text-muted);flex:1">短平快种草，字节豆包生态</span>
+              <button id="promptBtn_douyin" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('douyin')" title="编辑Prompt方案">✏️ 方案</button>
+            </label>
+            <label class="platform-check-item" data-p="toutiao">
+              <input type="checkbox" value="toutiao" checked>
+              <span class="platform-badge platform-toutiao">🟠 今日头条</span>
+              <span style="font-size:12px;color:var(--text-muted);flex:1">资讯风，字节系，与抖音可复用</span>
+              <button id="promptBtn_toutiao" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('toutiao')" title="编辑Prompt方案">✏️ 方案</button>
+            </label>
+            <label class="platform-check-item" data-p="xiaohongshu">
+              <input type="checkbox" value="xiaohongshu" checked>
+              <span class="platform-badge platform-xiaohongshu">📕 小红书</span>
+              <span style="font-size:12px;color:var(--text-muted);flex:1">种草笔记+标签，图片3-9张</span>
+              <button id="promptBtn_xiaohongshu" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('xiaohongshu')" title="编辑Prompt方案">✏️ 方案</button>
+            </label>
+            <label class="platform-check-item" data-p="baijia">
+              <input type="checkbox" value="baijia" checked>
+              <span class="platform-badge platform-baijia">🔵 百家号</span>
+              <span style="font-size:12px;color:var(--text-muted);flex:1">百度SEO优化，文心一言引用</span>
+              <button id="promptBtn_baijia" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('baijia')" title="编辑Prompt方案">✏️ 方案</button>
+            </label>
+          </div>
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+            <button class="btn btn-primary btn-lg" style="width:100%" onclick="generateContent()" id="genBtn">
+              ✨ 开始生成内容
+            </button>
+            <div id="genProgress" style="margin-top:10px;display:none">
+              <div class="progress" style="margin-bottom:6px"><div class="progress-bar" id="genProgressBar" style="width:0%"></div></div>
+              <div style="font-size:12px;color:var(--text-muted)" id="genProgressText">准备中…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 生成结果区 -->
+      <div id="genResults" style="display:none">
+        <div class="card-header" style="margin-bottom:12px">
+          <div class="card-title"><span class="icon">✅</span> 生成结果</div>
+          <button class="btn btn-success btn-sm" onclick="saveAllToLibrary()">💾 全部保存到内容库</button>
+        </div>
+        <div class="tabs" id="genResultTabs"></div>
+        <div id="genResultContent"></div>
+        <div id="geoScore" style="margin-top:16px"></div>
+      </div>
+    </div>
+
+    <!-- ============================
+         页面4：内容库
+    ============================= -->
+    <div id="page-library" class="page">
+      <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input class="form-control" style="max-width:240px" placeholder="搜索内容…" id="libSearch" oninput="renderLibrary()">
+          <select class="form-control" style="width:auto" id="libPlatformFilter" onchange="renderLibrary()">
+            <option value="">全部平台</option>
+            <option value="zhihu">知乎</option>
+            <option value="wechat">公众号</option>
+            <option value="douyin">抖音</option>
+            <option value="toutiao">头条</option>
+            <option value="xiaohongshu">小红书</option>
+            <option value="baijia">百家号</option>
+          </select>
+          <select class="form-control" style="width:auto" id="libStatusFilter" onchange="renderLibrary()">
+            <option value="">全部状态</option>
+            <option value="draft">草稿</option>
+            <option value="published">已发布</option>
+          </select>
+          <button class="btn btn-danger btn-sm" id="batchDeleteBtn" style="display:none" onclick="batchDeleteLib()">🗑️ 删除所选</button>
+          <span style="margin-left:auto;font-size:13px;color:var(--text-muted)" id="libCount">共0篇</span>
+        </div>
+      </div>
+      <div id="libraryList"></div>
+    </div>
+
+    <!-- ============================
+         页面5：素材库
+    ============================= -->
+    <div id="page-assets" class="page">
+      <div class="tabs">
+        <div class="tab active" onclick="switchAssetTab('base')">🏔️ 养殖基地</div>
+        <div class="tab" onclick="switchAssetTab('partner')">🤝 合作背书</div>
+        <div class="tab" onclick="switchAssetTab('restaurant')">🍽️ 餐饮客户（待补充）</div>
+        <div class="tab" onclick="switchAssetTab('images')">🖼️ 图片管理</div>
+      </div>
+
+      <!-- 基地素材 -->
+      <div id="asset-base" class="asset-tab">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🏔️ 山泉水养殖基地素材</div>
+            <div style="display:flex;gap:8px">
+              <span id="baseUnsaved" class="unsaved-badge" style="display:none">未保存</span>
+              <button class="btn btn-primary btn-sm" onclick="saveAssetBase()">💾 保存</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">基地名称/描述</label>
+            <input class="form-control" id="baseName" placeholder="例如：广东梅州五华县山泉水吊水养殖基地" oninput="markUnsaved('base')">
+          </div>
+          <div class="form-group">
+            <label class="form-label">核心卖点（每行一条）</label>
+            <textarea class="form-control" id="baseFeatures" rows="5" placeholder="例如：&#10;· 山泉水活水吊养，无药残&#10;· 吊水7-15天，瘦身排毒&#10;· 肉质紧实，无土腥味" oninput="markUnsaved('base')"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">基地数据（用于文案背书）</label>
+            <textarea class="form-control" id="baseData" rows="3" placeholder="例如：基地面积XX亩，年供应能力XX吨，合作商户XX家" oninput="markUnsaved('base')"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">基地图片（支持多张）</label>
+            <div id="baseImgSlots" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:10px"></div>
+            <button class="btn btn-outline btn-sm" onclick="addImgSlot('baseImgSlots','base')">+ 添加图片槽位</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 合作背书 -->
+      <div id="asset-partner" class="asset-tab" style="display:none">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🤝 合作背书素材</div>
+            <div style="display:flex;gap:8px">
+              <span id="partnerUnsaved" class="unsaved-badge" style="display:none">未保存</span>
+              <button class="btn btn-primary btn-sm" onclick="saveAssetPartner()">💾 保存</button>
+            </div>
+          </div>
+          <div id="partnerList" style="display:flex;flex-direction:column;gap:12px"></div>
+          <button class="btn btn-outline" style="margin-top:12px" onclick="addPartner()">+ 添加合作伙伴</button>
+        </div>
+      </div>
+
+      <!-- 餐饮客户（预留） -->
+      <div id="asset-restaurant" class="asset-tab" style="display:none">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🍽️ 餐饮客户案例（预留区）</div>
+            <span class="badge badge-warning">待补充</span>
+          </div>
+          <div class="empty-state">
+            <div class="icon">🍽️</div>
+            <p>餐饮客户素材待添加</p>
+            <p style="margin-top:8px;font-size:12px">内容补充后，系统将自动在相关文案中引用餐饮客户案例</p>
+          </div>
+          <button class="btn btn-primary" style="margin-top:16px;display:block;margin-left:auto;margin-right:auto" onclick="addRestaurantCase()">+ 添加餐饮客户案例</button>
+          <div id="restaurantCaseList" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <!-- 图片管理 -->
+      <div id="asset-images" class="asset-tab" style="display:none">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🖼️ 图片素材库</div>
+            <button class="btn btn-primary btn-sm" onclick="document.getElementById('uploadImg').click()">+ 上传图片</button>
+            <input type="file" id="uploadImg" accept="image/*" multiple style="display:none" onchange="uploadImages(event)">
+          </div>
+          <div id="imageGallery" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+            <div class="empty-state" style="grid-column:span 4;padding:48px">
+              <div class="icon">🖼️</div>
+              <p>暂无图片，点击上传</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================
+         页面6：关键词库
+    ============================= -->
+    <div id="page-keywords" class="page">
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <div class="card-title"><span class="icon">🗝️</span> 关键词库管理</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span id="kwUnsaved" class="unsaved-badge" style="display:none">有未保存更改</span>
+            <button class="btn btn-primary btn-sm" onclick="saveKeywords()">💾 保存关键词库</button>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+          关键词直接影响内容生成质量。编辑后请务必点击「保存」。
+        </div>
+        <div class="tabs" id="kwTabs">
+          <div class="tab active" onclick="switchKwTab('buy')">🛒 采购决策</div>
+          <div class="tab" onclick="switchKwTab('edu')">📖 科普认知</div>
+          <div class="tab" onclick="switchKwTab('scene')">🎭 场景应用</div>
+        </div>
+        <div id="kw-buy" class="kw-group">
+          <div id="kwTags-buy" style="margin-bottom:12px"></div>
+          <div style="display:flex;gap:8px">
+            <input class="form-control" id="kwInput-buy" placeholder="输入关键词后回车添加…" onkeydown="if(event.key==='Enter')addKeyword('buy')">
+            <button class="btn btn-outline btn-sm" onclick="addKeyword('buy')">添加</button>
+            <button class="btn btn-outline btn-sm" onclick="batchImportKw('buy')">批量导入</button>
+          </div>
+        </div>
+        <div id="kw-edu" class="kw-group" style="display:none">
+          <div id="kwTags-edu" style="margin-bottom:12px"></div>
+          <div style="display:flex;gap:8px">
+            <input class="form-control" id="kwInput-edu" placeholder="输入关键词后回车添加…" onkeydown="if(event.key==='Enter')addKeyword('edu')">
+            <button class="btn btn-outline btn-sm" onclick="addKeyword('edu')">添加</button>
+            <button class="btn btn-outline btn-sm" onclick="batchImportKw('edu')">批量导入</button>
+          </div>
+        </div>
+        <div id="kw-scene" class="kw-group" style="display:none">
+          <div id="kwTags-scene" style="margin-bottom:12px"></div>
+          <div style="display:flex;gap:8px">
+            <input class="form-control" id="kwInput-scene" placeholder="输入关键词后回车添加…" onkeydown="if(event.key==='Enter')addKeyword('scene')">
+            <button class="btn btn-outline btn-sm" onclick="addKeyword('scene')">添加</button>
+            <button class="btn btn-outline btn-sm" onclick="batchImportKw('scene')">批量导入</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================
+         页面7：发布计划
+    ============================= -->
+    <div id="page-schedule" class="page">
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <div class="card-title"><span class="icon">📅</span> 发布日历</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-outline btn-sm" onclick="prevMonth()">◀</button>
+            <span id="calMonthLabel" style="font-size:14px;font-weight:600"></span>
+            <button class="btn btn-outline btn-sm" onclick="nextMonth()">▶</button>
+            <button class="btn btn-primary btn-sm" onclick="goToday()">今天</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
+          <div style="text-align:center;font-size:11px;color:var(--text-muted);padding:4px">日</div>
+          <div style="text-align:center;font-size:11px;color:var(--text-muted);padding:4px">一</div>
+          <div style="text-align:center;font-size:11px;color:var(--text-muted);padding:4px">二</div>
+          <div style="text-align:center;font-size:11px;color:var(--text-muted);padding:4px">三</div>
+          <div style="text-align:center;font-size:11px;color:var(--text-muted);padding:4px">四</div>
+          <div style="text-align:center;font-size:11px;color:var(--text-muted);padding:4px">五</div>
+          <div style="text-align:center;font-size:11px;color:var(--text-muted);padding:4px">六</div>
+        </div>
+        <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="icon">📋</span> 发布队列</div>
+          <span class="badge badge-warning" id="queueCount">0篇待发布</span>
+        </div>
+        <div id="publishQueue"></div>
+      </div>
+    </div>
+
+    <!-- ============================
+         页面8：效果验证
+    ============================= -->
+    <div id="page-verify" class="page">
+      <div class="grid-2" style="margin-bottom:16px;align-items:start">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">🔍</span> 新建测试记录</div>
+          </div>
+
+          <!-- 随机抽取关键词 -->
+          <div class="form-group">
+            <label class="form-label" style="display:flex;align-items:center;justify-content:space-between">
+              <span>测试关键词</span>
+              <button class="btn btn-sm btn-outline" onclick="showRandomKwPicker()" style="font-size:12px">🎲 从关键词库随机抽取</button>
+            </label>
+            <input class="form-control" id="verifyKeyword" placeholder="手动输入，或点右上角随机抽取">
+            <!-- 随机关键词选择面板（默认隐藏） -->
+            <div id="randomKwPanel" style="display:none;margin-top:10px;border:1px solid var(--border);border-radius:10px;padding:12px;background:#f9fbff">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                <span style="font-size:12px;color:var(--text-muted)">从三组各随机抽5个，勾选后填入测试词</span>
+                <button class="btn btn-sm btn-outline" onclick="reshuffleRandomKw()" style="font-size:11px">🔄 换一批</button>
+              </div>
+              <div id="randomKwList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+              <button class="btn btn-sm btn-primary" onclick="applyRandomKw()" style="font-size:12px">✅ 用勾选关键词测试</button>
+              <button class="btn btn-sm btn-outline" onclick="document.getElementById('randomKwPanel').style.display='none'" style="font-size:12px;margin-left:6px">关闭</button>
+            </div>
+          </div>
+
+          <!-- 平台选择 + 测试按钮 -->
+          <div class="form-group">
+            <label class="form-label">测试AI平台（勾选本次测试的平台）</label>
+            <div id="verifyPlatformChecks" style="display:flex;flex-wrap:wrap;gap:8px">
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px"><input type="checkbox" value="doubao" checked> 豆包</label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px"><input type="checkbox" value="yuanbao" checked> 元宝</label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px"><input type="checkbox" value="qianwen" checked> 千问</label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px"><input type="checkbox" value="zhipu" checked> 智谱</label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px"><input type="checkbox" value="deepseek" checked> DeepSeek</label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px"><input type="checkbox" value="kimi" checked> Kimi</label>
+            </div>
+            <button class="btn btn-primary" style="margin-top:10px;background:linear-gradient(135deg,#00b96b,#0091ff);border:none" onclick="startVerifyTest()">🚀 开始测试</button>
+            <!-- 平台链接列表（点击后展示，避免浏览器拦截） -->
+            <div id="verifyLinkList" style="display:none;margin-top:10px;border:1px solid #b7eb8f;border-radius:10px;padding:12px;background:#f6ffed">
+              <div style="font-size:12px;color:#389e0d;margin-bottom:8px;font-weight:600">📋 关键词已复制！点击下方链接逐个打开（浏览器限制，不能同时弹出所有窗口）</div>
+              <div id="verifyLinks" style="display:flex;flex-direction:column;gap:6px"></div>
+            </div>
+          </div>
+
+          <!-- 命中情况 -->
+          <div class="form-group">
+            <label class="form-label">各平台命中情况</label>
+            <div id="verifyHitInputs" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">备注（可记录AI回答原文片段）</label>
+            <textarea class="form-control" id="verifyNote" rows="3" placeholder="例如：豆包回答中提到「万渔丰吊水鱼以山泉水养殖著称…」"></textarea>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="saveVerifyRecord()">💾 保存测试记录</button>
+            <button class="btn btn-outline" onclick="clearVerifyForm()">清空</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">📈</span> 命中率趋势</div>
+            <select class="form-control" style="width:auto" id="trendRange">
+              <option value="7">近7天</option>
+              <option value="30">近30天</option>
+              <option value="all">全部</option>
+            </select>
+          </div>
+          <canvas id="verifyChart" width="100%" height="180" style="width:100%"></canvas>
+          <div style="margin-top:12px" id="verifyStats"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="icon">📋</span> 测试记录历史</div>
+          <button class="btn btn-outline btn-sm" onclick="clearAllVerify()">清空记录</button>
+        </div>
+        <div id="verifyList"></div>
+
+        <div class="card" style="margin-top:16px;background:var(--primary-light);border:1px solid #c7d9fb">
+          <div class="card-title" style="margin-bottom:10px"><span class="icon">💡</span> 未命中建议</div>
+          <div id="missedSuggestions" style="font-size:13px;color:var(--text-muted)">暂无建议，先添加测试记录</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================
+         页面9：知识库
+    ============================= -->
+    <div id="page-knowledge" class="page">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="icon">🧠</span> 品牌知识库</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span id="kbUnsaved" class="unsaved-badge" style="display:none">有未保存更改</span>
+            <button class="btn btn-primary btn-sm" onclick="saveKB()">💾 保存知识库</button>
+          </div>
+        </div>
+        <div class="grid-2" style="gap:20px">
+          <div>
+            <div class="form-group">
+              <label class="form-label">品牌名称</label>
+              <input class="form-control" id="kbBrand" value="万渔丰吊水鱼" oninput="markUnsaved('kb')">
+            </div>
+            <div class="form-group">
+              <label class="form-label">品牌口号/Slogan</label>
+              <input class="form-control" id="kbSlogan" placeholder="例如：好鱼从吊水开始" oninput="markUnsaved('kb')">
+            </div>
+            <div class="form-group">
+              <label class="form-label">经营区域</label>
+              <input class="form-control" id="kbArea" placeholder="深圳、广州、东莞、惠州" oninput="markUnsaved('kb')">
+            </div>
+            <div class="form-group">
+              <label class="form-label">主营产品</label>
+              <textarea class="form-control" id="kbProducts" rows="3" placeholder="山泉水吊水鱼、瘦身鱼、清水淡水鱼" oninput="markUnsaved('kb')"></textarea>
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label class="form-label">炳哥人设描述</label>
+              <textarea class="form-control" id="kbIP" rows="4" placeholder="例如：水产供应链从业者，专注吊水鱼品质供应，深耕广东市场，合作沃尔玛/朴朴/美团小象等知名平台" oninput="markUnsaved('kb')"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">核心差异化卖点（每行一条）</label>
+              <textarea class="form-control" id="kbUSP" rows="5" placeholder="· 山泉水活水吊养，零药残&#10;· 吊水7-15天瘦身排毒&#10;· 肉质紧实无腥无土味&#10;· 死鱼包赔，送货上门&#10;· 溯源系统，食品安全可查" oninput="markUnsaved('kb')"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:8px">
+          <label class="form-label">补充说明（行业背景、品牌故事等）</label>
+          <textarea class="form-control" id="kbExtra" rows="4" placeholder="补充AI生成内容时可以引用的背景信息…" oninput="markUnsaved('kb')"></textarea>
+        </div>
+      </div>
+
+      <!-- 参考资料分区 v2.4.0 -->
+      <div class="card" style="margin-top:16px">
+        <div class="card-header">
+          <div class="card-title"><span class="icon">📂</span> 参考资料库</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-size:12px;color:var(--text-muted)">上传书籍/文章/抓取链接，生成内容时可选调用</span>
+            <button class="btn btn-outline btn-sm" onclick="selectAllRefs(true)">全选</button>
+            <button class="btn btn-outline btn-sm" onclick="selectAllRefs(false)">全不选</button>
+          </div>
+        </div>
+
+        <!-- 上传文件 -->
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('refFileInput').click()">📄 上传文件（PDF/Word/TXT/MD）</button>
+          <input type="file" id="refFileInput" accept=".pdf,.doc,.docx,.txt,.md" multiple style="display:none" onchange="uploadReferenceFile(event)">
+          <span id="refUploadStatus" style="font-size:12px;color:var(--text-muted)"></span>
+        </div>
+
+        <!-- 链接抓取 -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+          <input class="form-control" id="refLinkInput" style="flex:1;min-width:200px" placeholder="粘贴文章链接（知乎/公众号/头条/小红书/百家号等）">
+          <button class="btn btn-outline btn-sm" id="refFetchBtn" onclick="fetchReferenceLink()">📥 抓取内容</button>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;background:#fffbe6;padding:8px;border-radius:6px;border-left:3px solid var(--warning)">
+          💡 提示：微信公众号/抖音等平台有反爬限制，系统会分析链接类型并生成占位，请手动复制文章正文补充到对应条目。PDF内容需手动补充。
+        </div>
+
+        <!-- 参考资料列表 -->
+        <div id="referenceList"></div>
+      </div>
+    </div>
+
+    <!-- ============================
+         页面10：系统设置
+    ============================= -->
+    <div id="page-settings" class="page">
+      <div class="grid-2" style="align-items:start;gap:16px">
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header">
+              <div class="card-title"><span class="icon">🔑</span> API 配置</div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <span id="apiUnsaved" class="unsaved-badge" style="display:none">未保存</span>
+                <button class="btn btn-primary btn-sm" onclick="saveAPI()">💾 保存</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">API Key</label>
+              <input class="form-control" id="apiKey" type="password" placeholder="sk-xxxxxxxx" oninput="markUnsaved('api')">
+              <div class="form-hint">DeepSeek API Key，在 platform.deepseek.com 获取</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">模型</label>
+              <select class="form-control" id="apiModel" onchange="markUnsaved('api')">
+                <option value="deepseek-chat">deepseek-chat（推荐）</option>
+                <option value="deepseek-reasoner">deepseek-reasoner</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">每次生成字数上限</label>
+              <select class="form-control" id="apiMaxTokens" onchange="markUnsaved('api')">
+                <option value="2000">2000（省费用）</option>
+                <option value="3000" selected>3000（推荐）</option>
+                <option value="4000">4000（更完整）</option>
+              </select>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="testAPI()">🔌 测试连接</button>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="icon">🔗</span> 平台发布链接</div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <span id="linksUnsaved" class="unsaved-badge" style="display:none">未保存</span>
+                <button class="btn btn-primary btn-sm" onclick="saveLinks()">💾 保存</button>
+              </div>
+            </div>
+            <div class="form-group"><label class="form-label">知乎发布链接</label><input class="form-control" id="link-zhihu" value="https://www.zhihu.com/question/write" oninput="markUnsaved('links')"></div>
+            <div class="form-group"><label class="form-label">公众号后台</label><input class="form-control" id="link-wechat" value="https://mp.weixin.qq.com/" oninput="markUnsaved('links')"></div>
+            <div class="form-group"><label class="form-label">抖音创作者中心</label><input class="form-control" id="link-douyin" value="https://creator.douyin.com/" oninput="markUnsaved('links')"></div>
+            <div class="form-group"><label class="form-label">头条创作者中心</label><input class="form-control" id="link-toutiao" value="https://mp.toutiao.com/" oninput="markUnsaved('links')"></div>
+            <div class="form-group"><label class="form-label">小红书创作服务平台</label><input class="form-control" id="link-xiaohongshu" value="https://creator.xiaohongshu.com/" oninput="markUnsaved('links')"></div>
+            <div class="form-group"><label class="form-label">百家号</label><input class="form-control" id="link-baijia" value="https://baijiahao.baidu.com/" oninput="markUnsaved('links')"></div>
+          </div>
+        </div>
+
+        <div>
+          <!-- 版本管理 -->
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header">
+              <div class="card-title"><span class="icon">🏷️</span> 版本管理</div>
+              <span class="badge badge-success" id="currentVersionBadge">v2.0.0</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+              系统每次大更新都会保存新版本，旧版本永久保留。一旦新版本有问题，随时可切换回历史版本。
+            </div>
+            <div id="versionList"></div>
+          </div>
+
+          <!-- 数据管理 -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="icon">💾</span> 数据管理</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div>
+                <div style="font-size:13px;font-weight:500;margin-bottom:6px">导出备份</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">将所有数据（关键词/知识库/内容库/素材/设置）导出为JSON文件</div>
+                <button class="btn btn-outline" onclick="exportAllData()">⬇️ 导出全部数据</button>
+              </div>
+              <div class="divider"></div>
+              <div>
+                <div style="font-size:13px;font-weight:500;margin-bottom:6px">导入恢复</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">从之前导出的JSON备份文件恢复数据</div>
+                <button class="btn btn-outline" onclick="document.getElementById('importInput2').click()">⬆️ 导入数据</button>
+                <input type="file" id="importInput2" accept=".json" style="display:none" onchange="importAllData(event)">
+              </div>
+              <div class="divider"></div>
+              <div>
+                <div style="font-size:13px;font-weight:500;margin-bottom:6px;color:var(--danger)">清空数据</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">清空全部本地数据（不可恢复，请先备份）</div>
+                <button class="btn btn-danger" onclick="clearAllData()">⚠️ 清空全部数据</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- ===== Toast ===== -->
+<div id="toast-container"></div>
+
+<!-- ===== 内容查看弹窗 ===== -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal" style="max-width:800px">
+    <div class="modal-header">
+      <div class="modal-title" id="viewModalTitle">内容详情</div>
+      <span class="modal-close" onclick="closeModal('viewModal')">✕</span>
+    </div>
+    <div id="viewModalContent" style="white-space:pre-wrap;font-size:13px;line-height:1.7;max-height:60vh;overflow-y:auto;background:#f9f9f9;padding:16px;border-radius:8px"></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="copyViewContent()">📋 复制内容</button>
+      <button class="btn btn-outline" onclick="closeModal('viewModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 批量导入弹窗 ===== -->
+<div class="modal-overlay" id="batchKwModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">批量导入关键词</div>
+      <span class="modal-close" onclick="closeModal('batchKwModal')">✕</span>
+    </div>
+    <div class="form-group">
+      <label class="form-label">每行一个关键词</label>
+      <textarea class="form-control" id="batchKwInput" rows="10" placeholder="吊水鱼&#10;瘦身鱼&#10;深圳水产供应商&#10;…"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="confirmBatchKw()">导入</button>
+      <button class="btn btn-outline" onclick="closeModal('batchKwModal')">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Prompt 方案编辑器弹窗 ===== -->
+<div class="modal-overlay" id="promptEditorModal" style="display:none;z-index:1100">
+  <div class="modal" style="max-width:720px;width:95vw;max-height:90vh;overflow-y:auto">
+    <div class="modal-header">
+      <div class="modal-title" id="promptEditorTitle">✏️ Prompt 方案管理</div>
+      <span class="modal-close" onclick="closePromptEditor()">✕</span>
+    </div>
+    <div style="padding:0 20px 8px;font-size:13px;color:var(--text-muted)">
+      选择生成时使用的写作方案。系统内置方案只读，可新增自定义方案或从文件导入。
+    </div>
+
+    <!-- 方案列表 -->
+    <div style="padding:0 20px 16px">
+      <div id="promptPlanList" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+
+    <!-- 编辑区（点击编辑/查看展开） -->
+    <div id="promptEditArea" style="display:none;border-top:1px solid var(--border);padding:20px;background:#f9fbff">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <label style="font-size:13px;font-weight:600;white-space:nowrap">方案名称</label>
+        <input id="promptEditPlanName" type="text" class="input" style="flex:1" placeholder="输入方案名称">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <label style="font-size:13px;font-weight:600">Prompt 内容</label>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline btn-sm" onclick="document.getElementById('promptFileInput').click()">📁 导入文件(.md/.txt/.docx)</button>
+          <input type="file" id="promptFileInput" accept=".md,.txt,.docx" style="display:none" onchange="importPromptFile(event)">
+        </div>
+      </div>
+      <textarea id="promptEditContent" class="input" style="width:100%;height:320px;resize:vertical;font-size:13px;line-height:1.7;font-family:monospace" placeholder="在这里写你的Prompt...
+
+可用模板变量：
+{topic} — 选题内容
+{audience} — 目标读者
+{assets} — 选中素材
+{brandLevel_label} — 植入程度(轻/中/重)
+{brandLevel_rule} — 植入规则说明"></textarea>
+      <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+        <span id="promptEditHint" style="font-size:12px;color:var(--text-muted)"></span>
+        <button id="promptSaveBtn" class="btn btn-primary" onclick="saveEditedPlan()">💾 保存方案</button>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closePromptEditor()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 选题引擎 System Prompt 方案管理弹窗 (v2.4.0) ===== -->
+<div class="modal-overlay" id="topicPromptModal" style="display:none;z-index:1100">
+  <div class="modal" style="max-width:720px;width:95vw;max-height:90vh;overflow-y:auto">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ 选题引擎 System Prompt 方案</div>
+      <span class="modal-close" onclick="closeTopicPromptEditor()">✕</span>
+    </div>
+    <div style="padding:0 20px 8px;font-size:13px;color:var(--text-muted)">
+      管理选题生成时的系统指令。内置方案只读，可新增自定义方案或从文件导入。<br>
+      可用变量：<code>{brandName}</code> 品牌名、<code>{usp}</code> 核心卖点、<code>{ipName}</code> IP名、<code>{keywords}</code> 关键词库
+    </div>
+
+    <!-- 方案列表 -->
+    <div style="padding:0 20px 16px">
+      <div id="topicPromptPlanList" style="display:flex;flex-direction:column;gap:8px"></div>
+      <button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="addNewTopicPlan()">+ 新建自定义方案</button>
+    </div>
+
+    <!-- 编辑区 -->
+    <div style="border-top:1px solid var(--border);padding:20px;background:#f9fbff">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <label style="font-size:13px;font-weight:600;white-space:nowrap">方案名称</label>
+        <input id="topicPromptEditName" type="text" class="form-control" style="flex:1" placeholder="输入方案名称">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <label style="font-size:13px;font-weight:600">System Prompt 内容</label>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline btn-sm" onclick="document.getElementById('topicPromptFileInput').click()">📁 导入文件(.md/.txt/.docx)</button>
+          <input type="file" id="topicPromptFileInput" accept=".md,.txt,.docx" style="display:none" onchange="importTopicPromptFile(event)">
+        </div>
+      </div>
+      <textarea id="topicPromptEditContent" class="form-control" style="width:100%;height:280px;resize:vertical;font-size:13px;line-height:1.7;font-family:monospace" placeholder="在这里写选题引擎的System Prompt...
+
+示例：
+你是一个专业的内容营销策划师...
+品牌：{brandName}，卖点：{usp}
+IP：{ipName}
+关键词库：{keywords}"></textarea>
+      <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+        <span id="topicPromptEditHint" style="font-size:12px;color:var(--text-muted)"></span>
+        <button id="topicPromptSaveBtn" class="btn btn-primary" onclick="saveEditedTopicPlan()">💾 保存方案</button>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeTopicPromptEditor()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 发布弹窗 ===== -->
+<div class="modal-overlay" id="publishModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🚀 发布内容</div>
+      <span class="modal-close" onclick="closeModal('publishModal')">✕</span>
+    </div>
+    <div id="publishModalContent"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('publishModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script src="geo-core.js"></script>
+</body>
+</html>
