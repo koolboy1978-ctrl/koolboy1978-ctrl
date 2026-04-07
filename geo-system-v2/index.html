@@ -143,6 +143,9 @@
     .platform-toutiao { background: #fff7e6; color: #ff6900; }
     .platform-xiaohongshu { background: #fff0f0; color: #fe2c55; }
     .platform-baijia { background: #e8f0fe; color: #2932e1; }
+    .platform-netease { background: #fff1f0; color: #d43832; }
+    .platform-sohu { background: #fff7e6; color: #fa541c; }
+    .platform-penguin { background: #e6f7ff; color: #1677ff; }
 
     /* ===== 网格 ===== */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -163,6 +166,24 @@
     .progress { height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; }
     .progress-bar { height: 100%; border-radius: 3px; background: var(--primary); transition: width 0.5s; }
 
+    /* ===== 页面控制台 ===== */
+    .page-console-card { margin-top: 12px; border: 1px solid #ffd7d7; background: #fffafa; border-radius: 12px; padding: 12px 14px; }
+    .page-console-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    .page-console-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+    .page-console-list { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow: auto; }
+    .page-console-entry { border-radius: 10px; padding: 10px 12px; border: 1px solid var(--border); background: #fff; }
+    .page-console-entry.info { border-color: #d6e4ff; background: #f7fbff; }
+    .page-console-entry.warning { border-color: #ffe7ba; background: #fffaf0; }
+    .page-console-entry.error { border-color: #ffccc7; background: #fff2f0; }
+    .page-console-entry-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+    .page-console-level { font-size: 11px; font-weight: 600; }
+    .page-console-entry.info .page-console-level { color: var(--info); }
+    .page-console-entry.warning .page-console-level { color: var(--warning); }
+    .page-console-entry.error .page-console-level { color: var(--danger); }
+    .page-console-time { font-size: 11px; color: var(--text-muted); }
+    .page-console-title { font-size: 13px; color: var(--text); line-height: 1.6; }
+    .page-console-detail { margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(0,0,0,0.08); white-space: pre-wrap; word-break: break-word; font-size: 12px; line-height: 1.6; color: #5c6270; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace; }
+
     /* ===== 标签页 ===== */
     .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 20px; gap: 4px; }
     .tab { padding: 10px 18px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; border-radius: 6px 6px 0 0; }
@@ -176,6 +197,8 @@
     .list-item-title { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .list-item-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
     .list-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .topic-saved-item { align-items: flex-start; }
+    .topic-saved-item .list-item-actions { margin-top: 2px; }
 
     /* ===== 页面隐藏/显示 ===== */
     .page { display: none; }
@@ -235,6 +258,28 @@
     .topic-card.selected { border-color: var(--primary); background: var(--primary-light); }
     .topic-card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
     .topic-card-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+    .topic-reference { margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: #f3f8ff; border: 1px solid #d7e7ff; }
+    .topic-reference.compact { margin-top: 4px; padding: 0; background: transparent; border: 0; }
+    .topic-reference-summary { list-style: none; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; cursor: pointer; }
+    .topic-reference-summary::-webkit-details-marker { display: none; }
+    .topic-reference-summary-main { flex: 1; min-width: 0; }
+    .topic-reference-label { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: var(--primary); }
+    .topic-reference-text { display: block; margin-top: 4px; font-size: 12px; line-height: 1.5; color: #28527a; }
+    .topic-reference-toggle { flex-shrink: 0; font-size: 10px; font-weight: 600; color: var(--primary); background: #e3efff; border-radius: 999px; padding: 4px 8px; }
+    .topic-reference[open] .topic-reference-toggle { background: #d5e6ff; }
+    .topic-reference-detail { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #c7ddff; display: grid; gap: 8px; }
+    .topic-reference-detail-item { padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.6); }
+    .topic-reference-detail-label { font-size: 11px; font-weight: 600; color: #4a6fa5; margin-bottom: 4px; }
+    .topic-reference-detail-value { font-size: 12px; line-height: 1.6; color: #24415f; white-space: pre-wrap; word-break: break-word; }
+    .topic-reference-source-line { display: block; }
+    .topic-reference-source-line + .topic-reference-source-line { margin-top: 4px; }
+    .topic-reference-empty { font-size: 11px; color: var(--text-muted); }
+    .topic-reference.compact .topic-reference-label { font-size: 10px; }
+    .topic-reference.compact .topic-reference-summary { align-items: center; gap: 8px; }
+    .topic-reference.compact .topic-reference-summary-main { display: inline-flex; align-items: center; flex-wrap: wrap; }
+    .topic-reference.compact .topic-reference-text { display: inline; margin-top: 0; margin-left: 4px; font-size: 11px; color: var(--text-muted); }
+    .topic-reference.compact .topic-reference-toggle { padding: 2px 7px; font-size: 10px; }
+    .topic-reference.compact .topic-reference-detail { margin-top: 8px; }
 
     /* ===== 日历 ===== */
     .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
@@ -273,10 +318,403 @@
     .kw-tag .del { cursor: pointer; color: var(--primary); opacity: 0.6; font-size: 14px; }
     .kw-tag .del:hover { opacity: 1; color: var(--danger); }
 
+    /* ===== 内容生成页美化 ===== */
+    .generate-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(392px, 0.98fr);
+      gap: 18px;
+      margin-bottom: 18px;
+      align-items: start;
+    }
+    .generate-main-col,
+    .generate-side-col {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-width: 0;
+    }
+    .generate-side-col {
+      position: sticky;
+      top: 72px;
+    }
+    #page-generate .card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(226,232,240,.88);
+      box-shadow: 0 16px 34px rgba(15,23,42,.055);
+    }
+    #page-generate .card::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      top: 0;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(37,99,235,.18), rgba(14,165,233,.08), transparent 72%);
+      pointer-events: none;
+    }
+    #page-generate .card > * {
+      position: relative;
+      z-index: 1;
+    }
+    .generate-settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 14px;
+    }
+    .generate-settings-grid .form-group:last-child {
+      grid-column: 1 / -1;
+    }
+    .generate-section-caption {
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.2px;
+      line-height: 1.6;
+      margin: -2px 0 12px;
+    }
+    .generate-card-intro {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: -2px 0 14px;
+    }
+    .generate-card-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,.18);
+      background: #f8fafc;
+      color: #475569;
+      font-size: 12px;
+      line-height: 1.4;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+    }
+    .generate-card-pill strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .generate-card-pill.accent {
+      color: #1d4ed8;
+      border-color: rgba(59,130,246,.18);
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+    }
+    .generate-summary-card {
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+      border: 1px solid rgba(37,99,235,.10);
+      box-shadow: 0 18px 38px rgba(15,23,42,.07);
+    }
+    .generate-topic-preview {
+      padding: 14px 15px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(37,99,235,.09), rgba(14,165,233,.07));
+      border: 1px solid rgba(37,99,235,.13);
+      margin-bottom: 16px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+    }
+    .generate-topic-preview-text {
+      font-size: 16px;
+      line-height: 1.55;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .generate-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .generate-meta-card {
+      min-width: 0;
+      padding: 13px 13px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(226,232,240,.92);
+      background: linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(248,250,252,.96) 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.78);
+    }
+    .generate-meta-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    .generate-meta-value {
+      font-size: 24px;
+      line-height: 1.1;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .generate-meta-value.compact {
+      font-size: 14px;
+      line-height: 1.35;
+    }
+    .generate-summary-note {
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.68;
+      padding: 11px 13px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.94) 0%, rgba(248,250,252,.9) 100%);
+      border: 1px dashed rgba(148,163,184,.32);
+    }
+    .generate-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #eef2ff;
+      color: #4338ca;
+      border: 1px solid rgba(99,102,241,.12);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+    }
+    .generate-status-badge.ready { background: #eef2ff; color: #4338ca; }
+    .generate-status-badge.active { background: #eff6ff; color: #1d4ed8; }
+    .generate-status-badge.warning { background: #fff7ed; color: #c2410c; }
+    .platform-select-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .platform-check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+      min-width: 0;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.86);
+    }
+    .platform-check-item:hover {
+      border-color: #bfdbfe;
+      box-shadow: 0 10px 24px rgba(15,23,42,.06);
+      transform: translateY(-1px);
+    }
+    .platform-check-item.active {
+      border-color: #93c5fd;
+      background: linear-gradient(180deg, #ffffff 0%, #eff6ff 100%);
+      box-shadow: 0 12px 28px rgba(37,99,235,.08);
+    }
+    .platform-check-item > input {
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+    .platform-check-item > span:last-of-type {
+      min-width: 0;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+    .generate-actions-panel {
+      margin-top: 16px;
+      padding: 14px;
+      border-top: 1px solid rgba(226,232,240,.9);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.78);
+    }
+    .generate-actions-row {
+      display: flex;
+      gap: 12px;
+      align-items: stretch;
+    }
+    #page-generate .btn-outline.btn-sm {
+      border-radius: 999px;
+      padding: 6px 12px;
+    }
+    #page-generate .btn-prompt-edit {
+      border-radius: 999px;
+      padding: 4px 10px;
+      border-color: #dbeafe;
+      background: #fff;
+      font-weight: 600;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.82);
+    }
+    #page-generate .btn-prompt-edit:hover {
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+      border-color: #93c5fd;
+      transform: translateY(-1px);
+    }
+    #genBtn {
+      justify-content: center;
+      min-height: 48px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      box-shadow: 0 14px 28px rgba(37,99,235,.2);
+    }
+    #genBtn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 32px rgba(37,99,235,.24);
+    }
+    #genStopBtn {
+      min-width: 102px;
+      justify-content: center;
+      box-shadow: 0 12px 24px rgba(239,68,68,.16);
+    }
+    .asset-strategy-compact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      border: 1px dashed rgba(37,99,235,.24);
+      background: linear-gradient(180deg, #f8fbff 0%, var(--primary-light) 100%);
+      border-radius: 12px;
+    }
+    .asset-inline-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,.22);
+      background: rgba(255,255,255,.9);
+      color: #475569;
+      font-size: 12px;
+      line-height: 1.4;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+    .asset-inline-pill strong { color: var(--text); font-weight: 600; }
+    .asset-inline-pill.primary {
+      color: #1d4ed8;
+      border-color: rgba(29,78,216,.18);
+      background: rgba(255,255,255,.98);
+    }
+    .asset-inline-pill.warning {
+      color: #b45309;
+      border-color: rgba(245,158,11,.2);
+      background: #fff7ed;
+    }
+    .asset-mode-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 8px;
+    }
+    .asset-scope-hint,
+    .asset-strategy-panel {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin: -2px 0 8px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .asset-checkbox-grid {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px !important;
+      font-size: 13px;
+    }
+    #assetCheckboxes [data-asset-key] {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      justify-content: flex-start !important;
+      gap: 8px !important;
+      min-height: 96px;
+      padding: 10px 12px !important;
+      border-radius: 14px !important;
+      transition: all 0.18s ease;
+      box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;
+    }
+    #assetCheckboxes [data-asset-key]:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(15,23,42,.05);
+    }
+    #assetCheckboxes [data-asset-key] > label {
+      display: flex !important;
+      align-items: flex-start !important;
+      gap: 8px !important;
+      flex-wrap: wrap;
+      width: 100%;
+      flex: 1 1 auto;
+      min-height: 42px;
+    }
+    #assetCheckboxes [data-asset-key] > label > input {
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+    #assetCheckboxes [data-asset-key] > label > span:not([id^="assetAutoBadge_"]) {
+      flex: 1 1 180px;
+      min-width: 0;
+      line-height: 1.45;
+      color: var(--text);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    #assetCheckboxes [id^="assetAutoBadge_"] {
+      align-self: flex-start;
+      border-radius: 999px !important;
+      padding: 3px 10px !important;
+      border: 1px solid rgba(59,130,246,.16);
+      background: linear-gradient(135deg, #eff6ff, #dbeafe) !important;
+      color: #1d4ed8 !important;
+      font-size: 11px !important;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(37,99,235,.08);
+    }
+    #assetCheckboxes [id^="assetAutoBadge_"]::before {
+      content: '✦';
+      margin-right: 4px;
+      font-size: 10px;
+      opacity: .9;
+    }
+    #assetCheckboxes select[data-asset-priority] {
+      width: 100% !important;
+      min-height: 38px;
+      margin-top: auto;
+      padding: 0 12px !important;
+      border-radius: 10px !important;
+      border: 1px solid #d9e2f0 !important;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+      color: #334155;
+      font-size: 12px !important;
+      font-weight: 600;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+    }
+    #assetCheckboxes select[data-asset-priority]:focus {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 3px rgba(0,102,255,0.08) !important;
+    }
+    .asset-restaurant-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
     /* ===== 响应式 ===== */
+    @media (max-width: 1100px) {
+      .generate-layout { grid-template-columns: 1fr; }
+      .generate-side-col { position: static; }
+    }
     @media (max-width: 900px) {
       .grid-4 { grid-template-columns: repeat(2,1fr); }
       .grid-3 { grid-template-columns: 1fr 1fr; }
+      .generate-settings-grid,
+      .asset-mode-grid,
+      .asset-checkbox-grid,
+      .generate-meta-grid { grid-template-columns: 1fr; }
+      .generate-actions-row { flex-direction: column; }
+      .platform-check-item { align-items: flex-start; flex-wrap: wrap; }
     }
   </style>
 </head>
@@ -286,7 +724,7 @@
 <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="brand">万渔丰 · GEO</div>
-      <div><span class="version" id="sidebarVersion">v2.4.4</span></div>
+      <div><span class="version" id="sidebarVersion">v2.9.4</span></div>
       <div class="sub">生成式引擎优化系统</div>
     </div>
   <nav class="sidebar-nav">
@@ -442,10 +880,21 @@
               <option value="brand">全部品牌内容</option>
               <option value="ip">全部个人IP</option>
             </select>
+            <select class="form-control" style="width:auto" id="topicCount" onchange="updateTopicCountUI()">
+              <option value="10" selected>输出10个（完整候选）</option>
+              <option value="6">输出6个（AI筛前6）</option>
+              <option value="2">输出2个（AI筛前2）</option>
+            </select>
             <select class="form-control" style="width:auto" id="brandLevel" onchange="updateBrandLevelTip()">
               <option value="light">💡 轻度植入（不提品牌/IP名）</option>
               <option value="medium" selected>⚖️ 中度植入（自然带出1-2次）</option>
               <option value="heavy">🔥 重度植入（品牌/IP为主角）</option>
+            </select>
+            <select class="form-control" style="width:auto" id="topicKeywordMode" onchange="updateTopicKeywordModeTip()">
+              <option value="balanced" selected>⚖️ 均衡抽词</option>
+              <option value="buy">🛒 偏采购</option>
+              <option value="edu">📖 偏科普</option>
+              <option value="scene">🎯 偏场景</option>
             </select>
             <button class="btn btn-outline btn-sm" onclick="openTopicPromptEditor()" title="编辑选题System Prompt方案" style="display:flex;align-items:center;gap:6px">
               <span>⚙️ Prompt方案</span>
@@ -454,9 +903,14 @@
             <button class="btn btn-primary" onclick="generateTopics()" id="topicBtn">
               ✨ 生成10个选题
             </button>
+            <button class="btn btn-danger" onclick="stopTopicGeneration()" id="topicStopBtn" style="display:none">
+              ⏹ 停止
+            </button>
           </div>
         </div>
         <div id="brandLevelTip" style="font-size:12px;color:var(--text-muted);padding:4px 0">⚖️ 中度植入：内容有品牌/IP背景，正文自然带出1-2次，干货占80%以上。选题+内容生成同步生效。</div>
+        <div id="topicCountTip" style="font-size:12px;color:var(--text-muted);padding-top:2px">当前将直接返回10个选题。</div>
+        <div id="topicKeywordModeTip" style="font-size:12px;color:var(--text-muted);padding-top:2px">⚖️ 均衡模式：buy / edu / scene 三组尽量均衡，适合常规 GEO 覆盖。当前选题抽词结构为 采购决策12-14 / 科普认知12-14 / 经营场景12-14。</div>
       </div>
 
       <!-- 热点搜索折叠面板 -->
@@ -491,17 +945,24 @@
         <textarea class="form-control" id="topicInspiration" rows="2" placeholder="在这里记录灵感素材，如：太平年钱弘俶吃的鱼脍其实就是现代鱼生，顺德/潮汕/横县/五华各派别特色不同，可以做派别对比内容…"></textarea>
       </div>
 
+      <div class="card" id="topicKeywordSnapshotCard" style="margin-bottom:16px;display:none">
+        <div class="card-header">
+          <div class="card-title" style="font-size:14px"><span class="icon">🧪</span> 本轮抽词明细</div>
+        </div>
+        <div id="topicKeywordSnapshot"></div>
+      </div>
+
       <div id="topicsList" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
         <div class="empty-state" style="grid-column:span 2;padding:48px">
           <div class="icon">💡</div>
-          <p>点击「生成10个选题」开始</p>
+          <p>点击「生成选题」开始</p>
         </div>
       </div>
 
       <div style="display:flex;gap:10px;align-items:center">
         <button class="btn btn-success" id="useTopicBtn" disabled onclick="useSelectedTopic()">✍️ 用选中选题生成内容</button>
         <button class="btn btn-outline" onclick="saveTopic()">⭐ 收藏选中选题</button>
-        <button class="btn btn-outline" onclick="showPage('saved-topics')">📌 查看收藏夹</button>
+        <button class="btn btn-outline" onclick="scrollToSavedTopics()">📌 查看收藏夹</button>
       </div>
 
       <!-- 收藏夹 -->
@@ -522,133 +983,353 @@
          页面3：内容生成
     ============================= -->
     <div id="page-generate" class="page">
-      <div class="grid-2" style="margin-bottom:16px;align-items:start">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title"><span class="icon">📝</span> 内容主题</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" style="display:flex;align-items:center;gap:8px">
-              从收藏夹选题
-              <span style="font-size:11px;color:var(--text-muted)">选择后自动填入下方，可手动修改</span>
-            </label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <select class="form-control" id="savedTopicDropdown" onchange="onDropdownSelectTopic()" style="flex:1;font-size:13px">
-                <option value="">— 不使用收藏夹，手动填写 —</option>
-              </select>
-              <button class="btn btn-outline btn-sm" onclick="clearTopicDropdown()" title="清空选择，重新手动填写" style="white-space:nowrap;flex-shrink:0">✕ 清空</button>
+      <div class="generate-layout">
+        <div class="generate-main-col">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="icon">📝</span> 主题与基础设置</div>
+            </div>
+            <div class="generate-section-caption">先把标题锚点、植入力度、关键词策略和目标人群收好，右侧控制台会实时同步这一轮的生成状态。</div>
+            <div class="generate-card-intro">
+              <span class="generate-card-pill">📁 收藏夹选题可一键带入</span>
+              <span class="generate-card-pill"><strong>标题锚点</strong>会约束正文方向</span>
+              <span class="generate-card-pill accent">🎯 生成前先扫一眼右侧摘要</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="display:flex;align-items:center;gap:8px">
+                从收藏夹选题
+                <span style="font-size:11px;color:var(--text-muted)">选择后自动填入下方，可手动修改</span>
+              </label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <select class="form-control" id="savedTopicDropdown" onchange="onDropdownSelectTopic()" style="flex:1;font-size:13px">
+                  <option value="">— 不使用收藏夹，手动填写 —</option>
+                </select>
+                <button class="btn btn-outline btn-sm" onclick="clearTopicDropdown()" title="清空选择，重新手动填写" style="white-space:nowrap;flex-shrink:0">✕ 清空</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">主题/标题</label>
+              <textarea class="form-control" id="genTopic" rows="2" placeholder="输入选题或直接写内容方向，例如：深圳吊水鱼供应商怎么选？——一个水产老板的真心话"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">内容类型</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px">
+                  <input type="radio" name="contentType" value="brand" checked> 品牌内容（万渔丰）
+                </label>
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px">
+                  <input type="radio" name="contentType" value="ip"> 个人IP（炳哥）
+                </label>
+              </div>
+            </div>
+            <div class="generate-settings-grid">
+              <div class="form-group">
+                <label class="form-label">品牌/IP 植入程度
+                  <span style="font-size:11px;color:var(--text-muted);margin-left:6px">与选题引擎联动，选题后自动同步</span>
+                </label>
+                <select class="form-control" id="genBrandLevel" onchange="updateGenBrandLevelTip()">
+                  <option value="light">💡 轻度植入（不提品牌/IP名，纯干货）</option>
+                  <option value="medium" selected>⚖️ 中度植入（自然带出品牌1-2次）</option>
+                  <option value="heavy">🔥 重度植入（品牌/IP为核心主角）</option>
+                </select>
+                <div id="genBrandLevelTip" style="font-size:11px;color:var(--text-muted);margin-top:4px">⚖️ 正文自然提及品牌"万渔丰"或"炳哥"1-2次，干货内容占80%以上</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">关键词偏重模式</label>
+                <select class="form-control" id="genKeywordMode" onchange="updateGenKeywordModeTip()">
+                  <option value="balanced" selected>⚖️ 均衡抽词（15 / 15 / 15）</option>
+                  <option value="buy">🛒 偏采购（21 / 12 / 12）</option>
+                  <option value="edu">📖 偏科普（12 / 21 / 12）</option>
+                  <option value="scene">🎯 偏场景（12 / 12 / 21）</option>
+                </select>
+                <div id="genKeywordModeTip" style="font-size:11px;color:var(--text-muted);margin-top:4px">⚖️ 均衡模式：buy / edu / scene 三组尽量均衡，适合常规 GEO 覆盖。当前内容生成会按 采购决策15 / 科普认知15 / 经营场景15 注入 GEO Prompt。</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">目标人群</label>
+                <select class="form-control" id="genAudience">
+                  <option value="restaurant">餐饮老板/厨师长/采购负责人</option>
+                  <option value="fishraw">鱼生店主（顺德/潮汕/横县等）</option>
+                  <option value="retail">连锁超市水产负责人/零售商</option>
+                  <option value="consumer">普通消费者</option>
+                </select>
+              </div>
             </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">主题/标题</label>
-            <textarea class="form-control" id="genTopic" rows="2" placeholder="输入选题或直接写内容方向，例如：深圳吊水鱼供应商怎么选？——一个水产老板的真心话"></textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">内容类型</label>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px">
-                <input type="radio" name="contentType" value="brand" checked> 品牌内容（万渔丰）
-              </label>
-              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px">
-                <input type="radio" name="contentType" value="ip"> 个人IP（炳哥）
-              </label>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="icon">🧩</span> 素材调用策略</div>
+              <span class="badge badge-primary">更紧凑、更好扫</span>
             </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">品牌/IP 植入程度
-              <span style="font-size:11px;color:var(--text-muted);margin-left:6px">与选题引擎联动，选题后自动同步</span>
-            </label>
-            <select class="form-control" id="genBrandLevel" onchange="updateGenBrandLevelTip()">
-              <option value="light">💡 轻度植入（不提品牌/IP名，纯干货）</option>
-              <option value="medium" selected>⚖️ 中度植入（自然带出品牌1-2次）</option>
-              <option value="heavy">🔥 重度植入（品牌/IP为核心主角）</option>
-            </select>
-            <div id="genBrandLevelTip" style="font-size:11px;color:var(--text-muted);margin-top:4px">⚖️ 正文自然提及品牌"万渔丰"或"炳哥"1-2次，干货内容占80%以上</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">目标人群</label>
-            <select class="form-control" id="genAudience">
-              <option value="restaurant">餐饮老板/厨师长/采购负责人</option>
-              <option value="fishraw">鱼生店主（顺德/潮汕/横县等）</option>
-              <option value="retail">连锁超市水产负责人/零售商</option>
-              <option value="consumer">普通消费者</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">调用素材背书</label>
-            <div id="assetCheckboxes" style="display:flex;flex-direction:column;gap:6px;font-size:13px">
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-                <input type="checkbox" value="base" checked> 山泉水养殖基地
-              </label>
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-                <input type="checkbox" value="walmart" checked> 沃尔玛合作背书
-              </label>
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-                <input type="checkbox" value="pupu" checked> 朴朴超市合作
-              </label>
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-                <input type="checkbox" value="meituan" checked> 美团小象合作
-              </label>
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer" id="restaurantAssetLabel" style="display:none">
-                <input type="checkbox" value="restaurant" id="restaurantAssetCb"> 餐饮客户案例（待补充）
-              </label>
+            <div class="generate-section-caption">系统会先判断这篇更像科普 / 案例 / 转化文，再按你设定的优先级压缩 Prompt；方向已经明确时，再手动锁定就行。</div>
+            <div class="asset-strategy-compact">
+              <span class="asset-inline-pill primary">🤖 自动判断文章类型</span>
+              <span class="asset-inline-pill"><strong>按优先级</strong>压缩 Prompt</span>
+              <span class="asset-inline-pill warning">⚡ 仅本次生效会在完成后自动恢复默认值</span>
             </div>
+            <div class="asset-mode-grid">
+              <div>
+                <label class="form-label" style="font-size:12px;margin-bottom:6px">文章类型识别</label>
+                <select class="form-control" id="assetArticleTypeMode" onchange="saveAssetArticleTypeMode(true)">
+                  <option value="auto">自动识别</option>
+                  <option value="edu">强制科普</option>
+                  <option value="case">强制案例</option>
+                  <option value="conversion">强制转化</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label" style="font-size:12px;margin-bottom:6px">生效范围</label>
+                <select class="form-control" id="assetArticleTypeScope" onchange="saveAssetArticleTypeScope(true)">
+                  <option value="persistent">持久锁定</option>
+                  <option value="once">仅本次生效</option>
+                </select>
+              </div>
+            </div>
+            <div id="assetArticleTypeScopeHint" class="asset-scope-hint"></div>
+            <div id="assetCheckboxes" class="asset-checkbox-grid">
+              <div data-asset-key="base_basic" style="display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:#fff">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;min-width:0">
+                  <input type="checkbox" value="base_basic" checked onchange="updateAssetStrategyUI()">
+                  <span>基地基础信息（名称 / 地区 / 卖点 / 基地数据）</span>
+                  <span id="assetAutoBadge_base_basic" style="display:none;font-size:11px;color:#1d4ed8;background:#dbeafe;border-radius:999px;padding:2px 8px;white-space:nowrap">自动优先</span>
+                </label>
+                <select class="form-control" data-asset-priority="base_basic" onchange="saveAssetPriorityConfig(true)" style="width:108px;font-size:12px;padding:6px 8px">
+                  <option value="required">核心必带</option>
+                  <option value="preferred">优先调用</option>
+                  <option value="optional">可选补充</option>
+                </select>
+              </div>
+              <div data-asset-key="base_story" style="display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:#fff">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;min-width:0">
+                  <input type="checkbox" value="base_story" checked onchange="updateAssetStrategyUI()">
+                  <span>基地故事 / 溯源背景</span>
+                  <span id="assetAutoBadge_base_story" style="display:none;font-size:11px;color:#1d4ed8;background:#dbeafe;border-radius:999px;padding:2px 8px;white-space:nowrap">自动优先</span>
+                </label>
+                <select class="form-control" data-asset-priority="base_story" onchange="saveAssetPriorityConfig(true)" style="width:108px;font-size:12px;padding:6px 8px">
+                  <option value="required">核心必带</option>
+                  <option value="preferred">优先调用</option>
+                  <option value="optional">可选补充</option>
+                </select>
+              </div>
+              <div data-asset-key="base_process" style="display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:#fff">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;min-width:0">
+                  <input type="checkbox" value="base_process" checked onchange="updateAssetStrategyUI()">
+                  <span>养殖流程细节</span>
+                  <span id="assetAutoBadge_base_process" style="display:none;font-size:11px;color:#1d4ed8;background:#dbeafe;border-radius:999px;padding:2px 8px;white-space:nowrap">自动优先</span>
+                </label>
+                <select class="form-control" data-asset-priority="base_process" onchange="saveAssetPriorityConfig(true)" style="width:108px;font-size:12px;padding:6px 8px">
+                  <option value="required">核心必带</option>
+                  <option value="preferred">优先调用</option>
+                  <option value="optional">可选补充</option>
+                </select>
+              </div>
+              <div data-asset-key="base_inspection" style="display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:#fff">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;min-width:0">
+                  <input type="checkbox" value="base_inspection" checked onchange="updateAssetStrategyUI()">
+                  <span>检测认证 / 安全背书</span>
+                  <span id="assetAutoBadge_base_inspection" style="display:none;font-size:11px;color:#1d4ed8;background:#dbeafe;border-radius:999px;padding:2px 8px;white-space:nowrap">自动优先</span>
+                </label>
+                <select class="form-control" data-asset-priority="base_inspection" onchange="saveAssetPriorityConfig(true)" style="width:108px;font-size:12px;padding:6px 8px">
+                  <option value="required">核心必带</option>
+                  <option value="preferred">优先调用</option>
+                  <option value="optional">可选补充</option>
+                </select>
+              </div>
+              <div data-asset-key="base_supply" style="display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:#fff">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;min-width:0">
+                  <input type="checkbox" value="base_supply" onchange="updateAssetStrategyUI()">
+                  <span>供应与配送信息</span>
+                  <span id="assetAutoBadge_base_supply" style="display:none;font-size:11px;color:#1d4ed8;background:#dbeafe;border-radius:999px;padding:2px 8px;white-space:nowrap">自动优先</span>
+                </label>
+                <select class="form-control" data-asset-priority="base_supply" onchange="saveAssetPriorityConfig(true)" style="width:108px;font-size:12px;padding:6px 8px">
+                  <option value="required">核心必带</option>
+                  <option value="preferred" selected>优先调用</option>
+                  <option value="optional">可选补充</option>
+                </select>
+              </div>
+              <div data-asset-key="base_compare" style="display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:#fff">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;min-width:0">
+                  <input type="checkbox" value="base_compare" onchange="updateAssetStrategyUI()">
+                  <span>对比素材 / 反差点</span>
+                  <span id="assetAutoBadge_base_compare" style="display:none;font-size:11px;color:#1d4ed8;background:#dbeafe;border-radius:999px;padding:2px 8px;white-space:nowrap">自动优先</span>
+                </label>
+                <select class="form-control" data-asset-priority="base_compare" onchange="saveAssetPriorityConfig(true)" style="width:108px;font-size:12px;padding:6px 8px">
+                  <option value="required">核心必带</option>
+                  <option value="preferred" selected>优先调用</option>
+                  <option value="optional">可选补充</option>
+                </select>
+              </div>
+              <div data-asset-key="restaurant" style="display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:#fff">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;min-width:0">
+                  <input type="checkbox" value="restaurant" checked onchange="updateAssetStrategyUI()">
+                  <span>餐饮客户案例</span>
+                  <span id="assetAutoBadge_restaurant" style="display:none;font-size:11px;color:#1d4ed8;background:#dbeafe;border-radius:999px;padding:2px 8px;white-space:nowrap">自动优先</span>
+                </label>
+                <select class="form-control" data-asset-priority="restaurant" onchange="saveAssetPriorityConfig(true)" style="width:108px;font-size:12px;padding:6px 8px">
+                  <option value="required">核心必带</option>
+                  <option value="preferred">优先调用</option>
+                  <option value="optional">可选补充</option>
+                </select>
+              </div>
+              <div data-asset-key="walmart" style="display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:#fff">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;min-width:0">
+                  <input type="checkbox" value="walmart" checked onchange="updateAssetStrategyUI()">
+                  <span>沃尔玛合作背书</span>
+                  <span id="assetAutoBadge_walmart" style="display:none;font-size:11px;color:#1d4ed8;background:#dbeafe;border-radius:999px;padding:2px 8px;white-space:nowrap">自动优先</span>
+                </label>
+                <select class="form-control" data-asset-priority="walmart" onchange="saveAssetPriorityConfig(true)" style="width:108px;font-size:12px;padding:6px 8px">
+                  <option value="required">核心必带</option>
+                  <option value="preferred">优先调用</option>
+                  <option value="optional">可选补充</option>
+                </select>
+              </div>
+              <div data-asset-key="pupu" style="display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:#fff">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;min-width:0">
+                  <input type="checkbox" value="pupu" checked onchange="updateAssetStrategyUI()">
+                  <span>朴朴超市合作</span>
+                  <span id="assetAutoBadge_pupu" style="display:none;font-size:11px;color:#1d4ed8;background:#dbeafe;border-radius:999px;padding:2px 8px;white-space:nowrap">自动优先</span>
+                </label>
+                <select class="form-control" data-asset-priority="pupu" onchange="saveAssetPriorityConfig(true)" style="width:108px;font-size:12px;padding:6px 8px">
+                  <option value="required">核心必带</option>
+                  <option value="preferred">优先调用</option>
+                  <option value="optional">可选补充</option>
+                </select>
+              </div>
+              <div data-asset-key="meituan" style="display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:#fff">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;min-width:0">
+                  <input type="checkbox" value="meituan" checked onchange="updateAssetStrategyUI()">
+                  <span>美团小象合作</span>
+                  <span id="assetAutoBadge_meituan" style="display:none;font-size:11px;color:#1d4ed8;background:#dbeafe;border-radius:999px;padding:2px 8px;white-space:nowrap">自动优先</span>
+                </label>
+                <select class="form-control" data-asset-priority="meituan" onchange="saveAssetPriorityConfig(true)" style="width:108px;font-size:12px;padding:6px 8px">
+                  <option value="required">核心必带</option>
+                  <option value="preferred">优先调用</option>
+                  <option value="optional">可选补充</option>
+                </select>
+              </div>
+            </div>
+            <div id="assetStrategyHint" class="asset-strategy-panel">正在根据主题自动判断这篇更像科普文、案例文还是转化文…</div>
+            <div id="restaurantAssetHint" class="asset-restaurant-hint">餐饮客户案例未填写时，生成链路会自动忽略该项。</div>
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title"><span class="icon">📡</span> 发布平台</div>
-            <div style="display:flex;gap:6px">
-              <button class="btn btn-outline btn-sm" onclick="selectAllPlatforms()">全选</button>
-              <button class="btn btn-outline btn-sm" onclick="clearPlatforms()">清空</button>
+        <div class="generate-side-col">
+          <div class="card generate-summary-card">
+            <div class="card-header" style="margin-bottom:14px">
+              <div class="card-title"><span class="icon">🎛️</span> 生成控制台</div>
+              <span class="generate-status-badge ready" id="generateStatusBadge">准备中</span>
             </div>
+            <div class="generate-topic-preview">
+              <div class="generate-section-caption" style="margin-bottom:6px">当前主题锚点</div>
+              <div class="generate-topic-preview-text" id="generateTopicPreview">还没填主题</div>
+            </div>
+            <div class="generate-meta-grid">
+              <div class="generate-meta-card">
+                <div class="generate-meta-value" id="generatePlatformCount">0</div>
+                <div class="generate-meta-label">已选平台</div>
+              </div>
+              <div class="generate-meta-card">
+                <div class="generate-meta-value" id="generateAssetCount">0</div>
+                <div class="generate-meta-label">已选素材</div>
+              </div>
+              <div class="generate-meta-card">
+                <div class="generate-meta-value compact" id="generateArticleModeLabel">自动识别</div>
+                <div class="generate-meta-label">文章类型</div>
+              </div>
+              <div class="generate-meta-card">
+                <div class="generate-meta-value compact" id="generateKeywordModeLabel">均衡抽词</div>
+                <div class="generate-meta-label">关键词策略</div>
+              </div>
+            </div>
+            <div class="generate-summary-note" id="generateSummaryText">准备好主题、平台和素材后，右侧直接开跑。</div>
           </div>
-          <div id="platformSelect" style="display:flex;flex-direction:column;gap:8px">
-            <label class="platform-check-item" data-p="zhihu">
-              <input type="checkbox" value="zhihu" checked>
-              <span class="platform-badge platform-zhihu">📘 知乎</span>
-              <span style="font-size:12px;color:var(--text-muted);flex:1">长文问答 1500字+，AI引用权重最高</span>
-              <button id="promptBtn_zhihu" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('zhihu')" title="编辑Prompt方案">✏️ 方案</button>
-            </label>
-            <label class="platform-check-item" data-p="wechat">
-              <input type="checkbox" value="wechat" checked>
-              <span class="platform-badge platform-wechat">💚 微信公众号</span>
-              <span style="font-size:12px;color:var(--text-muted);flex:1">图文爆款，元宝生态</span>
-              <button id="promptBtn_wechat" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('wechat')" title="编辑Prompt方案">✏️ 方案</button>
-            </label>
-            <label class="platform-check-item" data-p="douyin">
-              <input type="checkbox" value="douyin" checked>
-              <span class="platform-badge platform-douyin">🎵 抖音图文</span>
-              <span style="font-size:12px;color:var(--text-muted);flex:1">短平快种草，字节豆包生态</span>
-              <button id="promptBtn_douyin" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('douyin')" title="编辑Prompt方案">✏️ 方案</button>
-            </label>
-            <label class="platform-check-item" data-p="toutiao">
-              <input type="checkbox" value="toutiao" checked>
-              <span class="platform-badge platform-toutiao">🟠 今日头条</span>
-              <span style="font-size:12px;color:var(--text-muted);flex:1">资讯风，字节系，与抖音可复用</span>
-              <button id="promptBtn_toutiao" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('toutiao')" title="编辑Prompt方案">✏️ 方案</button>
-            </label>
-            <label class="platform-check-item" data-p="xiaohongshu">
-              <input type="checkbox" value="xiaohongshu" checked>
-              <span class="platform-badge platform-xiaohongshu">📕 小红书</span>
-              <span style="font-size:12px;color:var(--text-muted);flex:1">种草笔记+标签，图片3-9张</span>
-              <button id="promptBtn_xiaohongshu" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('xiaohongshu')" title="编辑Prompt方案">✏️ 方案</button>
-            </label>
-            <label class="platform-check-item" data-p="baijia">
-              <input type="checkbox" value="baijia" checked>
-              <span class="platform-badge platform-baijia">🔵 百家号</span>
-              <span style="font-size:12px;color:var(--text-muted);flex:1">百度SEO优化，文心一言引用</span>
-              <button id="promptBtn_baijia" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('baijia')" title="编辑Prompt方案">✏️ 方案</button>
-            </label>
-          </div>
-          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
-            <button class="btn btn-primary btn-lg" style="width:100%" onclick="generateContent()" id="genBtn">
-              ✨ 开始生成内容
-            </button>
-            <div id="genProgress" style="margin-top:10px;display:none">
-              <div class="progress" style="margin-bottom:6px"><div class="progress-bar" id="genProgressBar" style="width:0%"></div></div>
-              <div style="font-size:12px;color:var(--text-muted)" id="genProgressText">准备中…</div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="icon">📡</span> 平台选择与生成</div>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-outline btn-sm" onclick="selectAllPlatforms()">全选</button>
+                <button class="btn btn-outline btn-sm" onclick="clearPlatforms()">清空</button>
+              </div>
+            </div>
+            <div class="generate-section-caption">平台选择 + Prompt 方案都放在这里，右侧不再只剩一颗孤零零的生成按钮。</div>
+            <div id="platformSelect" class="platform-select-list">
+              <label class="platform-check-item" data-p="zhihu">
+                <input type="checkbox" value="zhihu" checked>
+                <span class="platform-badge platform-zhihu">📘 知乎</span>
+                <span style="font-size:12px;color:var(--text-muted);flex:1">长文问答 1500字+，AI引用权重最高</span>
+                <button id="promptBtn_zhihu" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('zhihu')" title="编辑Prompt方案">✏️ 方案</button>
+              </label>
+              <label class="platform-check-item" data-p="wechat">
+                <input type="checkbox" value="wechat" checked>
+                <span class="platform-badge platform-wechat">💚 微信公众号</span>
+                <span style="font-size:12px;color:var(--text-muted);flex:1">图文爆款，元宝生态</span>
+                <button id="promptBtn_wechat" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('wechat')" title="编辑Prompt方案">✏️ 方案</button>
+              </label>
+              <label class="platform-check-item" data-p="douyin">
+                <input type="checkbox" value="douyin" checked>
+                <span class="platform-badge platform-douyin">🎵 抖音图文</span>
+                <span style="font-size:12px;color:var(--text-muted);flex:1">短平快种草，字节豆包生态</span>
+                <button id="promptBtn_douyin" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('douyin')" title="编辑Prompt方案">✏️ 方案</button>
+              </label>
+              <label class="platform-check-item" data-p="toutiao">
+                <input type="checkbox" value="toutiao" checked>
+                <span class="platform-badge platform-toutiao">🟠 今日头条</span>
+                <span style="font-size:12px;color:var(--text-muted);flex:1">资讯风，字节系，与抖音可复用</span>
+                <button id="promptBtn_toutiao" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('toutiao')" title="编辑Prompt方案">✏️ 方案</button>
+              </label>
+              <label class="platform-check-item" data-p="xiaohongshu">
+                <input type="checkbox" value="xiaohongshu" checked>
+                <span class="platform-badge platform-xiaohongshu">📕 小红书</span>
+                <span style="font-size:12px;color:var(--text-muted);flex:1">种草笔记+标签，图片3-9张</span>
+                <button id="promptBtn_xiaohongshu" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('xiaohongshu')" title="编辑Prompt方案">✏️ 方案</button>
+              </label>
+              <label class="platform-check-item" data-p="baijia">
+                <input type="checkbox" value="baijia" checked>
+                <span class="platform-badge platform-baijia">🔵 百家号</span>
+                <span style="font-size:12px;color:var(--text-muted);flex:1">百度SEO优化，文心一言引用</span>
+                <button id="promptBtn_baijia" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('baijia')" title="编辑Prompt方案">✏️ 方案</button>
+              </label>
+              <label class="platform-check-item" data-p="netease">
+                <input type="checkbox" value="netease" checked>
+                <span class="platform-badge platform-netease">🟥 网易号</span>
+                <span style="font-size:12px;color:var(--text-muted);flex:1">门户资讯分发，适合深度解读与行业观察</span>
+                <button id="promptBtn_netease" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('netease')" title="编辑Prompt方案">✏️ 方案</button>
+              </label>
+              <label class="platform-check-item" data-p="sohu">
+                <input type="checkbox" value="sohu" checked>
+                <span class="platform-badge platform-sohu">🟠 搜狐号</span>
+                <span style="font-size:12px;color:var(--text-muted);flex:1">门户搜索+资讯流，适合观点型和场景型长文</span>
+                <button id="promptBtn_sohu" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('sohu')" title="编辑Prompt方案">✏️ 方案</button>
+              </label>
+              <label class="platform-check-item" data-p="penguin">
+                <input type="checkbox" value="penguin" checked>
+                <span class="platform-badge platform-penguin">🐧 企鹅号</span>
+                <span style="font-size:12px;color:var(--text-muted);flex:1">腾讯内容生态，适合信任背书和图文科普分发</span>
+                <button id="promptBtn_penguin" class="btn-prompt-edit" onclick="event.preventDefault();openPromptEditor('penguin')" title="编辑Prompt方案">✏️ 方案</button>
+              </label>
+            </div>
+            <div class="generate-actions-panel">
+              <div class="generate-actions-row">
+                <button class="btn btn-primary btn-lg" style="flex:1" onclick="generateContent()" id="genBtn">
+                  ✨ 开始生成内容
+                </button>
+                <button class="btn btn-danger btn-lg" onclick="stopContentGeneration()" id="genStopBtn" style="display:none;white-space:nowrap">
+                  ⏹ 停止
+                </button>
+              </div>
+              <div id="genProgress" style="margin-top:10px;display:none">
+                <div class="progress" style="margin-bottom:6px"><div class="progress-bar" id="genProgressBar" style="width:0%"></div></div>
+                <div style="font-size:12px;color:var(--text-muted)" id="genProgressText">准备中…</div>
+              </div>
+              <div id="pageConsoleCard" class="page-console-card" style="display:none">
+                <div class="page-console-head">
+                  <div class="card-title" style="font-size:14px"><span class="icon">🧯</span> 页面控制台 <span class="badge badge-danger" id="pageConsoleBadge" style="display:none"></span></div>
+                  <button class="btn btn-outline btn-sm" onclick="clearPageConsole()">清空</button>
+                </div>
+                <div id="pageConsoleSummary" class="page-console-meta">这里会显示本页运行时异常和关键调试信息。</div>
+                <div id="pageConsoleList" class="page-console-list"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -659,6 +1340,9 @@
         <div class="card-header" style="margin-bottom:12px">
           <div class="card-title"><span class="icon">✅</span> 生成结果</div>
           <button class="btn btn-success btn-sm" onclick="saveAllToLibrary()">💾 全部保存到内容库</button>
+        </div>
+        <div id="genKeywordSnapshotCard" style="display:none;margin-bottom:12px;background:#f8fbff;border:1px solid var(--border);border-radius:12px;padding:12px 14px">
+          <div id="genKeywordSnapshot"></div>
         </div>
         <div class="tabs" id="genResultTabs"></div>
         <div id="genResultContent"></div>
@@ -681,6 +1365,9 @@
             <option value="toutiao">头条</option>
             <option value="xiaohongshu">小红书</option>
             <option value="baijia">百家号</option>
+            <option value="netease">网易号</option>
+            <option value="sohu">搜狐号</option>
+            <option value="penguin">企鹅号</option>
           </select>
           <select class="form-control" style="width:auto" id="libStatusFilter" onchange="renderLibrary()">
             <option value="">全部状态</option>
@@ -698,11 +1385,10 @@
          页面5：素材库
     ============================= -->
     <div id="page-assets" class="page">
-      <div class="tabs">
-        <div class="tab active" onclick="switchAssetTab('base')">🏔️ 养殖基地</div>
-        <div class="tab" onclick="switchAssetTab('partner')">🤝 合作背书</div>
-        <div class="tab" onclick="switchAssetTab('restaurant')">🍽️ 餐饮客户（待补充）</div>
-        <div class="tab" onclick="switchAssetTab('images')">🖼️ 图片管理</div>
+      <div class="tabs" id="assetTabs">
+        <div class="tab active" data-tab="base" onclick="switchAssetTab('base')">🏔️ 养殖基地</div>
+        <div class="tab" data-tab="partner" onclick="switchAssetTab('partner')">🤝 合作背书</div>
+        <div class="tab" data-tab="restaurant" onclick="switchAssetTab('restaurant')">🍽️ 餐饮客户案例</div>
       </div>
 
       <!-- 基地素材 -->
@@ -715,22 +1401,42 @@
               <button class="btn btn-primary btn-sm" onclick="saveAssetBase()">💾 保存</button>
             </div>
           </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">这里填的内容不是摆设，内容生成时会按你在“调用素材维度”里的勾选项，把这些信息真正拼进 Prompt 里。</div>
           <div class="form-group">
-            <label class="form-label">基地名称/描述</label>
-            <input class="form-control" id="baseName" placeholder="例如：广东梅州五华县山泉水吊水养殖基地" oninput="markUnsaved('base')">
+            <label class="form-label">基地名称 / 描述</label>
+            <input class="form-control" id="baseName" placeholder="例如：惠州罗浮山山泉水吊养基地" oninput="markUnsaved('base')">
+          </div>
+          <div class="form-group">
+            <label class="form-label">所在地区 / 辐射范围</label>
+            <input class="form-control" id="baseLocation" placeholder="例如：广东惠州博罗，覆盖深圳/东莞/广州" oninput="markUnsaved('base')">
           </div>
           <div class="form-group">
             <label class="form-label">核心卖点（每行一条）</label>
-            <textarea class="form-control" id="baseFeatures" rows="5" placeholder="例如：&#10;· 山泉水活水吊养，无药残&#10;· 吊水7-15天，瘦身排毒&#10;· 肉质紧实，无土腥味" oninput="markUnsaved('base')"></textarea>
+            <textarea class="form-control" id="baseFeatures" rows="5" placeholder="例如：&#10;· 山泉水活水吊养，无药残&#10;· 吊水10-30天，瘦身排毒&#10;· 肉质紧实，无土腥味" oninput="markUnsaved('base')"></textarea>
           </div>
           <div class="form-group">
             <label class="form-label">基地数据（用于文案背书）</label>
-            <textarea class="form-control" id="baseData" rows="3" placeholder="例如：基地面积XX亩，年供应能力XX吨，合作商户XX家" oninput="markUnsaved('base')"></textarea>
+            <textarea class="form-control" id="baseData" rows="3" placeholder="例如：基地面积120亩，全年可完成吊水鱼百万斤" oninput="markUnsaved('base')"></textarea>
           </div>
           <div class="form-group">
-            <label class="form-label">基地图片（支持多张）</label>
-            <div id="baseImgSlots" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:10px"></div>
-            <button class="btn btn-outline btn-sm" onclick="addImgSlot('baseImgSlots','base')">+ 添加图片槽位</button>
+            <label class="form-label">基地故事 / 溯源背景</label>
+            <textarea class="form-control" id="baseStory" rows="4" placeholder="例如：为什么选这个基地、山泉水从哪里来、最早怎么开始做吊水鱼" oninput="markUnsaved('base')"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">养殖流程细节</label>
+            <textarea class="form-control" id="baseProcess" rows="5" placeholder="例如：吊水多少天、换水频率、暂养方式、喂养策略、起鱼与运输流程" oninput="markUnsaved('base')"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">检测与认证 / 安全背书</label>
+            <textarea class="form-control" id="baseInspection" rows="4" placeholder="例如：无药残检测、水质指标、抽检频次、可追溯方式、资质证明" oninput="markUnsaved('base')"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">供应与配送信息</label>
+            <textarea class="form-control" id="baseSupply" rows="3" placeholder="例如：日供应量、配送范围、到店频次、深圳中转仓、活鱼到店时效" oninput="markUnsaved('base')"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">对比素材 / 反差点</label>
+            <textarea class="form-control" id="baseCompare" rows="4" placeholder="例如：普通养殖鱼 vs 吊水鱼的口感差异、腥味差异、出品稳定性差异" oninput="markUnsaved('base')"></textarea>
           </div>
         </div>
       </div>
@@ -745,44 +1451,37 @@
               <button class="btn btn-primary btn-sm" onclick="saveAssetPartner()">💾 保存</button>
             </div>
           </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">现在不只是“都算合作背书”这么粗。沃尔玛 / 朴朴 / 美团三家可以直接排成交顺位，转化文会优先放大前面的渠道背书。</div>
           <div id="partnerList" style="display:flex;flex-direction:column;gap:12px"></div>
           <button class="btn btn-outline" style="margin-top:12px" onclick="addPartner()">+ 添加合作伙伴</button>
         </div>
       </div>
 
-      <!-- 餐饮客户（预留） -->
+      <!-- 餐饮客户案例 -->
       <div id="asset-restaurant" class="asset-tab" style="display:none">
         <div class="card">
           <div class="card-header">
-            <div class="card-title">🍽️ 餐饮客户案例（预留区）</div>
-            <span class="badge badge-warning">待补充</span>
+            <div class="card-title">🍽️ 餐饮客户案例</div>
+            <span class="badge badge-success">可直接调用</span>
           </div>
-          <div class="empty-state">
-            <div class="icon">🍽️</div>
-            <p>餐饮客户素材待添加</p>
-            <p style="margin-top:8px;font-size:12px">内容补充后，系统将自动在相关文案中引用餐饮客户案例</p>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">这里保存的案例会在内容生成时作为真实使用场景和客户反馈素材，系统默认最多取前 3 条。</div>
+          <div class="form-group">
+            <label class="form-label">餐厅名称</label>
+            <input class="form-control" id="restaurantCaseName" placeholder="例如：深圳南山某顺德鱼生店">
           </div>
-          <button class="btn btn-primary" style="margin-top:16px;display:block;margin-left:auto;margin-right:auto" onclick="addRestaurantCase()">+ 添加餐饮客户案例</button>
+          <div class="form-group">
+            <label class="form-label">使用场景</label>
+            <input class="form-control" id="restaurantCaseScene" placeholder="例如：鱼生 / 清蒸 / 酸菜鱼 / 烤鱼 / 大排档现点现做">
+          </div>
+          <div class="form-group">
+            <label class="form-label">案例描述 / 客户评价</label>
+            <textarea class="form-control" id="restaurantCaseDesc" rows="3" placeholder="例如：试样后改成长期采购，客户反馈鱼肉更紧实、出品更稳、回头客更愿意点招牌鱼生"></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="addRestaurantCase()">+ 保存餐饮客户案例</button>
           <div id="restaurantCaseList" style="margin-top:16px"></div>
         </div>
       </div>
 
-      <!-- 图片管理 -->
-      <div id="asset-images" class="asset-tab" style="display:none">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">🖼️ 图片素材库</div>
-            <button class="btn btn-primary btn-sm" onclick="document.getElementById('uploadImg').click()">+ 上传图片</button>
-            <input type="file" id="uploadImg" accept="image/*" multiple style="display:none" onchange="uploadImages(event)">
-          </div>
-          <div id="imageGallery" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-            <div class="empty-state" style="grid-column:span 4;padding:48px">
-              <div class="icon">🖼️</div>
-              <p>暂无图片，点击上传</p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- ============================
@@ -886,13 +1585,16 @@
             <input class="form-control" id="verifyKeyword" placeholder="手动输入，或点右上角随机抽取">
             <!-- 随机关键词选择面板（默认隐藏） -->
             <div id="randomKwPanel" style="display:none;margin-top:10px;border:1px solid var(--border);border-radius:10px;padding:12px;background:#f9fbff">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px">
                 <span style="font-size:12px;color:var(--text-muted)">从三组各随机抽5个，勾选后填入测试词</span>
-                <button class="btn btn-sm btn-outline" onclick="reshuffleRandomKw()" style="font-size:11px">🔄 换一批</button>
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                  <button id="randomKwToggleAll" class="btn btn-sm btn-outline" type="button" onclick="toggleRandomKwSelection('all')" style="font-size:11px">✅ 全选全部</button>
+                  <button class="btn btn-sm btn-outline" type="button" onclick="reshuffleRandomKw()" style="font-size:11px">🔄 换一批</button>
+                </div>
               </div>
-              <div id="randomKwList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
-              <button class="btn btn-sm btn-primary" onclick="applyRandomKw()" style="font-size:12px">✅ 用勾选关键词测试</button>
-              <button class="btn btn-sm btn-outline" onclick="document.getElementById('randomKwPanel').style.display='none'" style="font-size:12px;margin-left:6px">关闭</button>
+              <div id="randomKwList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+              <button class="btn btn-sm btn-primary" type="button" onclick="applyRandomKw()" style="font-size:12px">✅ 用勾选关键词测试</button>
+              <button class="btn btn-sm btn-outline" type="button" onclick="document.getElementById('randomKwPanel').style.display='none'" style="font-size:12px;margin-left:6px">关闭</button>
             </div>
           </div>
 
@@ -910,19 +1612,33 @@
             <button class="btn btn-primary" style="margin-top:10px;background:linear-gradient(135deg,#00b96b,#0091ff);border:none" onclick="startVerifyTest()">🚀 开始测试</button>
             <!-- 平台链接列表（点击后展示，避免浏览器拦截） -->
             <div id="verifyLinkList" style="display:none;margin-top:10px;border:1px solid #b7eb8f;border-radius:10px;padding:12px;background:#f6ffed">
-              <div style="font-size:12px;color:#389e0d;margin-bottom:8px;font-weight:600">📋 关键词已复制！点击下方链接逐个打开（浏览器限制，不能同时弹出所有窗口）</div>
+              <div style="font-size:12px;color:#389e0d;margin-bottom:8px;font-weight:600">📋 已尝试自动打开勾选平台；如果有被浏览器拦截的，继续点下面链接会自动复制关键词并补开</div>
               <div id="verifyLinks" style="display:flex;flex-direction:column;gap:6px"></div>
             </div>
           </div>
 
-          <!-- 命中情况 -->
+          <!-- 判定结果 -->
           <div class="form-group">
-            <label class="form-label">各平台命中情况</label>
+            <label class="form-label">各平台判定结果（强命中 / 弱命中 / 未命中）</label>
             <div id="verifyHitInputs" style="display:flex;flex-direction:column;gap:8px"></div>
           </div>
+
           <div class="form-group">
-            <label class="form-label">备注（可记录AI回答原文片段）</label>
-            <textarea class="form-control" id="verifyNote" rows="3" placeholder="例如：豆包回答中提到「万渔丰吊水鱼以山泉水养殖著称…」"></textarea>
+            <label class="form-label" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+              <span>分平台回答粘贴区</span>
+              <span style="font-size:12px;color:var(--text-muted)">把各平台回答贴进来后，点“自动判定命中”即可回填结果</span>
+            </label>
+            <div id="verifyAnswerInputs" style="display:flex;flex-direction:column;gap:10px"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+              <button class="btn btn-outline" onclick="runAutoVerifyAnalysis()">🧠 自动判定命中</button>
+              <button class="btn btn-outline" onclick="clearVerifyAnswers()">🧹 清空回答</button>
+            </div>
+            <div id="verifyAutoSummary" style="display:none;margin-top:10px;padding:12px;border-radius:10px;border:1px solid #d6e4ff;background:#f9fbff;font-size:12px;color:var(--text-muted)"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">补充备注（可选）</label>
+            <textarea class="form-control" id="verifyNote" rows="3" placeholder="例如：这轮重点测品牌词占位，豆包和元宝回答比较完整"></textarea>
           </div>
           <div style="display:flex;gap:8px">
             <button class="btn btn-primary" onclick="saveVerifyRecord()">💾 保存测试记录</button>
@@ -932,11 +1648,11 @@
 
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="icon">📈</span> 命中率趋势</div>
+            <div class="card-title"><span class="icon">📈</span> 命中分层趋势</div>
             <select class="form-control" style="width:auto" id="trendRange">
               <option value="7">近7天</option>
               <option value="30">近30天</option>
-              <option value="all">全部</option>
+              <option value="0">全部</option>
             </select>
           </div>
           <canvas id="verifyChart" width="100%" height="180" style="width:100%"></canvas>
@@ -1089,6 +1805,9 @@
             <div class="form-group"><label class="form-label">头条创作者中心</label><input class="form-control" id="link-toutiao" value="https://mp.toutiao.com/" oninput="markUnsaved('links')"></div>
             <div class="form-group"><label class="form-label">小红书创作服务平台</label><input class="form-control" id="link-xiaohongshu" value="https://creator.xiaohongshu.com/" oninput="markUnsaved('links')"></div>
             <div class="form-group"><label class="form-label">百家号</label><input class="form-control" id="link-baijia" value="https://baijiahao.baidu.com/" oninput="markUnsaved('links')"></div>
+            <div class="form-group"><label class="form-label">网易号</label><input class="form-control" id="link-netease" value="https://mp.163.com/" oninput="markUnsaved('links')"></div>
+            <div class="form-group"><label class="form-label">搜狐号</label><input class="form-control" id="link-sohu" value="https://mp.sohu.com/" oninput="markUnsaved('links')"></div>
+            <div class="form-group"><label class="form-label">企鹅号</label><input class="form-control" id="link-penguin" value="https://om.qq.com/" oninput="markUnsaved('links')"></div>
           </div>
         </div>
 
@@ -1097,7 +1816,7 @@
           <div class="card" style="margin-bottom:16px">
             <div class="card-header">
               <div class="card-title"><span class="icon">🏷️</span> 版本管理</div>
-              <span class="badge badge-success" id="currentVersionBadge">v2.0.0</span>
+              <span class="badge badge-success" id="currentVersionBadge">v2.9.4</span>
             </div>
             <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
               系统每次大更新都会保存新版本，旧版本永久保留。一旦新版本有问题，随时可切换回历史版本。
