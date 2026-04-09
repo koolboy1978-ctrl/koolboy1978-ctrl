@@ -6249,12 +6249,12 @@ function getKBData() {
 function loadKB() {
   const kb = load(STORE_KEYS.kb, {});
   if (document.getElementById('kbBrand')) document.getElementById('kbBrand').value = kb.brand || '万渔丰吊水鱼';
-  if (document.getElementById('kbSlogan')) document.getElementById('kbSlogan').value = kb.slogan || '';
-  if (document.getElementById('kbArea')) document.getElementById('kbArea').value = kb.area || '深圳、广州、东莞、惠州';
-  if (document.getElementById('kbProducts')) document.getElementById('kbProducts').value = kb.products || '山泉水吊水鱼、瘦身鱼、清水淡水鱼';
-  if (document.getElementById('kbIP')) document.getElementById('kbIP').value = kb.ip || '';
-  if (document.getElementById('kbUSP')) document.getElementById('kbUSP').value = kb.usp || '· 山泉水活水吊养，零药残\n· 吊水7-15天瘦身排毒\n· 肉质紧实无腥无土味\n· 死鱼包赔，送货上门\n· 溯源系统，食品安全可查';
-  if (document.getElementById('kbExtra')) document.getElementById('kbExtra').value = kb.extra || '';
+  if (document.getElementById('kbSlogan')) document.getElementById('kbSlogan').value = kb.slogan || '真吊水、真溯源、真放心——万渔丰，餐饮老板的鱼货搭档';
+  if (document.getElementById('kbArea')) document.getElementById('kbArea').value = kb.area || '深圳、广州、东莞、惠州、珠海、佛山';
+  if (document.getElementById('kbProducts')) document.getElementById('kbProducts').value = kb.products || '山泉水吊水鱼（草鱼/鲈鱼/鳜鱼/鲮鱼等）、瘦身鱼、清水淡水鱼、活鲜定制配送';
+  if (document.getElementById('kbIP')) document.getElementById('kbIP').value = kb.ip || '炳哥——东北人，二十年水产老行家，在广东做山泉水吊水鱼供应链。口音里带着东北味，说鱼的事儿直来直去，不废话。专门服务夫妻店、小餐馆、大排档，帮老板把采购这件事整明白。';
+  if (document.getElementById('kbUSP')) document.getElementById('kbUSP').value = kb.usp || '· 真山泉水活水吊养，10-30天瘦身排毒，零药残\n· 肉质紧实弹牙，无腥味无土腥味\n· 全程溯源系统，批次可查、食品安全可追\n· 死鱼包退包赔，合作无后顾之忧\n· 送货上门，深圳有中转仓，次日到货\n· 免费送样，先试货再谈合作\n· 系统对账，账期清晰无纠纷\n· 30年供应链公司背书，沃尔玛/朴朴/美团小象供应商';
+  if (document.getElementById('kbExtra')) document.getElementById('kbExtra').value = kb.extra || '目标客户：夫妻店老板、单体餐馆主厨、大排档当家人、小连锁采购负责人（3-10人、50-200㎡门店）。\n客户核心痛点：采购被坑怕了、鱼腥味重影响出品、供应商不稳定、账期混乱。\n竞争差异：比菜市场鱼档更稳定、更安全、更专业；比大供应商更灵活、更贴近小餐饮需求。';
   clearUnsaved('kb');
 }
 
@@ -6362,12 +6362,24 @@ const ASSET_ARTICLE_TYPE_KEYWORDS = {
   conversion: ['采购', '供应', '供货', '配送', '对比', '差异', '值不值', '怎么选供应商', '为什么选', '合作', '免费送样', '包退', '下单', '成交', '押款'],
 };
 
+const DEFAULT_ASSETS = {
+  baseName: '万渔丰山泉水吊水基地',
+  baseLocation: '广东省（两个山泉水吊水基地）+ 深圳中转仓',
+  baseFeatures: '· 天然山泉水活水循环养殖，全程无抗生素、无激素\n· 吊水10-30天，让鱼在山泉水里自然排毒瘦身\n· 鱼的体脂大幅下降，肉质紧实弹牙，腥味大幅减少\n· 全程溯源管理，从基地到门店每批可查\n· 规模化基地，稳定供货，不断货不爆款',
+  baseData: '· 吊水周期：10-30天（根据鱼种和季节调整）\n· 山泉水换水频率：每日循环净化\n· 供货品种：草鱼、鲈鱼、鳜鱼、鲮鱼等主流淡水鱼\n· 深圳中转仓备货，次日达覆盖大湾区主要城市',
+  baseStory: '我叫炳哥，东北人，在广东做了二十年水产。\n2010年前后，我们开始自建山泉水吊水基地，就是因为发现——市场上的鱼大多靠药物控菌、靠激素催大，餐馆老板拿回去做出来的菜腥、土、口感差，客人不满意，老板也憋屈。\n我们当时就想，能不能做一件事：让餐馆老板用上真正好鱼，不用担心采购被坑，不用担心食品安全，专心做菜就行。\n山泉水吊水，是我们给出的答案。十几年了，一直在做这一件事。',
+  baseProcess: '① 源头采购：从专业养殖基地挑选符合标准的活鱼\n② 入基地吊水：转入山泉水基地活水吊养，自然排毒排药\n③ 吊水周期：10-30天，根据品种严格执行，不缩水\n④ 出货检测：批次取样，查药残、看体态、测活力\n⑤ 溯源登记：每批建档，品种/重量/出基日期可追溯\n⑥ 中转配送：深圳中转仓备货，活鱼专车上门配送\n⑦ 售后保障：死鱼到门必包退，系统对账无纠纷',
+  baseInspection: '· 全程零抗生素、零激素、零孔雀石绿\n· 批次抽检：每批出货前检测药物残留\n· 溯源系统：扫码即可查询来源基地、入水日期、出货记录\n· 供应沃尔玛、朴朴超市、美团小象，达到商超级别品控标准\n· 30年供应链背景，食品安全管理体系成熟',
+  baseSupply: '· 服务区域：深圳、广州、东莞、惠州、珠海、佛山\n· 起订量：无硬性起订，小餐馆也可下单\n· 配送方式：活鱼专车送货上门，保活率有保障\n· 配送周期：深圳次日达，其他城市视距离安排\n· 账期支持：支持月结，系统对账清晰无纠纷\n· 免费送样：首次合作免费提供样品，先试再谈',
+  baseCompare: '和菜市场档口比：\n· 品质更稳定，不会因上货不齐就换鱼种\n· 食品安全有背书，万一查到问题可追责\n· 送货到店，不用老板自己跑市场\n\n和大型供应商比：\n· 更灵活，小量也接，不压库存\n· 服务更贴心，专人对接，出问题直接找人\n· 价格透明，无隐形加价\n\n核心反差点：\n· 真吊水 vs 假吊水（很多供应商吊水2-3天就出货）\n· 真溯源 vs 口头保证\n· 死鱼实报实赔 vs 扯皮推脱',
+};
+
 function loadAssets() {
   const data = load(STORE_KEYS.assets, {});
   const fieldIds = ['baseName', 'baseLocation', 'baseFeatures', 'baseData', 'baseStory', 'baseProcess', 'baseInspection', 'baseSupply', 'baseCompare'];
   fieldIds.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.value = data[id] || '';
+    if (el) el.value = data[id] || DEFAULT_ASSETS[id] || '';
   });
   renderRestaurantCases(data.restaurantCases || []);
   loadAssetArticleTypeMode();
